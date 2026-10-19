@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# builds
+dist/
+build/
+*.egg-info/
+
+# environment / secrets
+.env
+.env.*
+!.env.example
+
+# logs & os
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# uploads (user-generated avatars)
+backend/uploads/
+
+# editors
+.vscode/
+.idea/

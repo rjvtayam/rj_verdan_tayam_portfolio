@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a0c" />
+    <title>R.J. Verdan Tayam — Full-Stack Web Developer</title>
+    <meta
+      name="description"
+      content="Portfolio of R.J. Verdan Tayam, a full-stack web developer building fast, accessible products with React, FastAPI and PostgreSQL."
+    />
+    <meta property="og:title" content="R.J. Verdan Tayam — Full-Stack Web Developer" />
+    <meta
+      property="og:description"
+      content="Full-stack web developer. React, FastAPI, PostgreSQL. Selected work, writing and contact."
+    />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      ;(function () {
+        var stored = localStorage.getItem('theme')
+        var theme =
+          stored ||
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        document.documentElement.dataset.theme = theme
+        var accent = localStorage.getItem('accent')
+        document.documentElement.dataset.accent = accent || (theme === 'dark' ? 'lime' : 'flame')
+      })()
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Ricky Jhon V. Tayam",
+        "alternateName": "R.J. Verdan Tayam",
+        "jobTitle": "Full-Stack Web Developer",
+        "email": "mailto:rickyjhon.tayam@gmail.com",
+        "telephone": "+639661855866",
+        "url": "https://rjvtayam.github.io/rjtayam-portfolio",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Jomalig",
+          "addressRegion": "Quezon",
+          "addressCountry": "PH"
+        },
+        "sameAs": [
+          "https://web.facebook.com/rj.tayam",
+          "https://github.com/rjvtayam"
+        ],
+        "knowsAbout": [
+          "React",
+          "TypeScript",
+          "Python",
+          "FastAPI",
+          "PostgreSQL",
+          "Flutter",
+          "Web Development",
+          "UI/UX Design"
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
