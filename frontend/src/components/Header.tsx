@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { BarChart3, Command, Download, Menu, UserRound, X } from 'lucide-react'
+import { BarChart3, Command, Download, Images, Menu, UserRound, X } from 'lucide-react'
 import { Link, NavLink } from 'react-router-dom'
 import { RESUMES } from '../lib/resumes'
 import AccentSwitcher from './AccentSwitcher'
-import ThemeToggle from './ThemeToggle'
 
 const NAV = [
   { to: '/projects', label: 'WORK', index: '01' },
@@ -12,6 +11,10 @@ const NAV = [
   { to: '/about', label: 'ABOUT', index: '03' },
   { to: '/contact', label: 'CONTACT', index: '04' },
 ]
+
+function openPhotos() {
+  window.dispatchEvent(new Event('hud:photos'))
+}
 
 function Monogram() {
   return (
@@ -72,7 +75,15 @@ export default function Header() {
               <Command size={14} />
               <span className="tracking-widest">⌘K</span>
             </button>
-            <ThemeToggle />
+            <button
+              type="button"
+              onClick={openPhotos}
+              aria-label="View photos"
+              title="View photos"
+              className="brutal-flat flex h-10 w-10 items-center justify-center bg-surface transition-colors hover:bg-accent hover:text-accent-ink"
+            >
+              <Images size={16} />
+            </button>
           </div>
         </nav>
 
@@ -85,7 +96,15 @@ export default function Header() {
           >
             <Command size={16} />
           </button>
-          <ThemeToggle />
+          <button
+            type="button"
+            onClick={openPhotos}
+            aria-label="View photos"
+            title="View photos"
+            className="brutal-flat flex h-10 w-10 items-center justify-center bg-surface transition-colors hover:bg-accent hover:text-accent-ink"
+          >
+            <Images size={16} />
+          </button>
           <button
             type="button"
             aria-label={open ? 'Close menu' : 'Open menu'}
@@ -181,6 +200,16 @@ export default function Header() {
                     className="brutal brutal-hover flex flex-1 items-center justify-center gap-2 bg-surface px-3 py-3 font-mono text-[0.7rem] font-bold tracking-widest hover:text-accent"
                   >
                     <BarChart3 size={13} /> ANALYTICS
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      openPhotos()
+                      setOpen(false)
+                    }}
+                    className="brutal brutal-hover flex flex-1 items-center justify-center gap-2 bg-surface px-3 py-3 font-mono text-[0.7rem] font-bold tracking-widest hover:text-accent"
+                  >
+                    <Images size={13} /> PHOTOS
                   </button>
                 </div>
                 <div className="flex gap-3">

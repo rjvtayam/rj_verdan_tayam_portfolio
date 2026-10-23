@@ -8,6 +8,7 @@ import CommandPalette from './CommandPalette'
 import CustomCursor from './CustomCursor'
 import LeftRail from './LeftRail'
 import ProfileOverlay from './ProfileOverlay'
+import PhotosOverlay from './PhotosOverlay'
 import ReadingProgress from './ReadingProgress'
 import RightRail from './RightRail'
 import Footer from './Footer'
@@ -17,7 +18,7 @@ import { metaFor } from '../lib/seo'
 export default function RootLayout() {
   const { pathname } = useLocation()
   const [paletteOpen, setPaletteOpen] = useState(false)
-  const [panel, setPanel] = useState<'profile' | 'analytics' | null>(null)
+  const [panel, setPanel] = useState<'profile' | 'analytics' | 'photos' | null>(null)
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
@@ -34,11 +35,14 @@ export default function RootLayout() {
   useEffect(() => {
     const onProfile = () => setPanel('profile')
     const onAnalytics = () => setPanel('analytics')
+    const onPhotos = () => setPanel('photos')
     window.addEventListener('hud:profile', onProfile)
     window.addEventListener('hud:analytics', onAnalytics)
+    window.addEventListener('hud:photos', onPhotos)
     return () => {
       window.removeEventListener('hud:profile', onProfile)
       window.removeEventListener('hud:analytics', onAnalytics)
+      window.removeEventListener('hud:photos', onPhotos)
     }
   }, [])
 
@@ -83,6 +87,7 @@ export default function RootLayout() {
       <Footer />
       {panel === 'profile' && <ProfileOverlay onClose={() => setPanel(null)} />}
       {panel === 'analytics' && <AnalyticsOverlay onClose={() => setPanel(null)} />}
+      {panel === 'photos' && <PhotosOverlay onClose={() => setPanel(null)} />}
     </div>
   )
 }

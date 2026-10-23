@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import {
   Award,
   BookOpen,
@@ -18,11 +17,11 @@ import {
   Sparkles,
   UserRound,
   Users,
-  X,
 } from 'lucide-react'
 import { PHOTOS, PROFILE, type PersonalDetail } from '../lib/profile'
 import { RESUMES } from '../lib/resumes'
 import { HBars } from './charts'
+import OverlayShell from './OverlayShell'
 import PhotoCarousel from './PhotoCarousel'
 import { FacebookIcon } from './SocialIcons'
 
@@ -53,57 +52,32 @@ function SectionLabel({ icon: Icon, text }: { icon: typeof Award; text: string }
 }
 
 export default function ProfileOverlay({ onClose }: { onClose: () => void }) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
-    document.addEventListener('keydown', onKey)
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = ''
-    }
-  }, [onClose])
-
   return (
-    <div className="palette-overlay" onClick={onClose} role="presentation">
-      <div
-        className="overlay-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Profile of Ricky Jhon V. Tayam"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-line bg-surface/95 px-5 py-4 backdrop-blur-md sm:px-7">
-          <div>
-            <p className="label">/// PROFILE · BASIC INFORMATION</p>
-            <h2 className="section-title mt-1 text-lg sm:text-xl">{PROFILE.brand}</h2>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <button
-              type="button"
-              onClick={() => window.print()}
-              title="Print or save as PDF"
-              className="brutal-flat no-print hidden items-center gap-2 bg-bg px-3 py-2.5 font-mono text-[0.7rem] tracking-widest transition-colors hover:text-accent sm:flex"
-            >
-              <Printer size={14} /> PRINT
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close profile"
-              className="brutal-flat no-print flex h-10 w-10 shrink-0 items-center justify-center bg-bg transition-colors hover:text-accent"
-            >
-              <X size={16} />
-            </button>
-          </div>
-        </div>
-
-        <div className="space-y-8 px-5 py-6 sm:px-7">
+    <OverlayShell
+      onClose={onClose}
+      label="/// PROFILE · BASIC INFORMATION"
+      title={PROFILE.brand}
+      ariaLabel="Profile of Ricky Jhon V. Tayam"
+      actions={
+        <button
+          type="button"
+          onClick={() => window.print()}
+          title="Print or save as PDF"
+          className="brutal-flat hidden items-center gap-2 bg-bg px-3 py-2.5 font-mono text-[0.7rem] tracking-widest transition-colors hover:text-accent sm:flex"
+        >
+          <Printer size={14} /> PRINT
+        </button>
+      }
+    >
+      <div className="space-y-7 sm:space-y-8">
           {/* identity + carousel */}
           <div className="grid gap-6 md:grid-cols-[minmax(0,300px)_minmax(0,1fr)]">
             <PhotoCarousel photos={PHOTOS} />
             <div className="flex flex-col justify-center gap-4">
               <div>
-                <h3 className="section-title text-2xl sm:text-3xl">{PROFILE.name}</h3>
+                <h3 className="section-title text-[clamp(1.35rem,1rem+1.8vw,1.9rem)]">
+                  {PROFILE.name}
+                </h3>
                 <p className="mt-2 font-mono text-xs font-bold tracking-[0.2em] text-accent">
                   {PROFILE.title}
                 </p>
@@ -159,7 +133,7 @@ export default function ProfileOverlay({ onClose }: { onClose: () => void }) {
                       <span className="block font-mono text-[0.6rem] tracking-widest text-mute uppercase">
                         {d.label}
                       </span>
-                      <span className="block truncate font-mono text-[0.78rem] font-bold">
+                      <span className="block font-mono text-[0.78rem] leading-snug font-bold break-words">
                         {d.value}
                       </span>
                     </span>
@@ -337,8 +311,7 @@ export default function ProfileOverlay({ onClose }: { onClose: () => void }) {
           <p className="flex items-center justify-center gap-2 border-t border-line pt-5 font-mono text-[0.62rem] tracking-widest text-mute">
             <Download size={12} /> FULL CV AVAILABLE AS PDF FROM THE HUD OR ABOVE
           </p>
-        </div>
       </div>
-    </div>
+    </OverlayShell>
   )
 }

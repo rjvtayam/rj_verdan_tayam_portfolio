@@ -74,7 +74,16 @@ export default function Footer() {
       <div className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-5 font-mono text-[0.7rem] tracking-widest text-mute sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <span>© {YEAR} R.J. VERDAN TAYAM — ALL RIGHTS RESERVED</span>
-          <span>BUILT WITH REACT · FASTAPI · POSTGRESQL</span>
+          <span className="flex items-center gap-4">
+            <span>BUILT WITH REACT · FASTAPI · POSTGRESQL</span>
+            <Link
+              to="/admin"
+              className="link-underline tracking-widest transition-colors hover:text-accent"
+              title="Admin console"
+            >
+              ADMIN
+            </Link>
+          </span>
         </div>
       </div>
     </footer>

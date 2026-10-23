@@ -24,13 +24,14 @@
     />
     <script>
       ;(function () {
-        var stored = localStorage.getItem('theme')
-        var theme =
-          stored ||
-          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-        document.documentElement.dataset.theme = theme
+        document.documentElement.dataset.theme = 'dark'
+        try {
+          localStorage.setItem('theme', 'dark')
+        } catch (e) {
+          /* storage unavailable */
+        }
         var accent = localStorage.getItem('accent')
-        document.documentElement.dataset.accent = accent || (theme === 'dark' ? 'lime' : 'flame')
+        document.documentElement.dataset.accent = accent || 'lime'
       })()
     </script>
     <script type="application/ld+json">

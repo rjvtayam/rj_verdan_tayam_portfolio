@@ -87,10 +87,12 @@ docker compose up --build
 ## Signature UX features
 
 - **Orbitron display type** + neon card palette (6 hues), aurora hero background, glow/hover shine on cards.
-- **Accent switcher** — 4 accents (lime / cyan / magenta / flame) via `data-accent`, persisted in localStorage, theme-aware per dark/light.
-- **Command palette** — `Ctrl/⌘ + K` (navigate, toggle theme, copy email).
+- **Dark-only theme** (forced) + **accent switcher** — 4 accents (lime / cyan / magenta / flame) via `data-accent`, persisted in localStorage.
+- **HUD overlays** — profile résumé (printable), public analytics dashboard, and photo gallery (grid + lightbox) via the header/HUD icons.
+- **Command palette** — `Ctrl/⌘ + K` (navigate, view photos, copy email, admin console).
+- **Admin console** at `/admin` (subtle footer link) — login with the seeded `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
 - **Boot intro** — once per session (sessionStorage), respects `prefers-reduced-motion`.
-- **Custom cursor** (desktop, fine pointer) + card tilt, count-up stats, reading progress bar on articles.
+- **Custom cursor** (desktop, fine pointer) + card tilt, count-up stats, global reading progress bar.
 
 ## Deployment notes
 

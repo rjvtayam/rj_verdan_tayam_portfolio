@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Activity, Layers, Quote, Star, Timer, Users, X, Zap } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Activity, Layers, Quote, Star, Timer, Users, Zap } from 'lucide-react'
 import { usePosts, useProjects, useSkills, useTestimonials } from '../lib/hooks'
+import OverlayShell from './OverlayShell'
 import { Donut, HBars, Radar, RadialGauge, type BarDatum } from './charts'
 
 const NEON = [
@@ -66,22 +67,36 @@ function KpiCard({
 }) {
   return (
     <div
-      className="neon-card flex items-center gap-4 p-5"
+      className="neon-card flex items-start gap-3 p-4 sm:items-center sm:gap-4 sm:p-5"
       style={{ ['--card-neon' as string]: color }}
     >
       <span
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line bg-bg"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-line bg-bg sm:h-11 sm:w-11"
         style={{ color, boxShadow: `0 0 16px -8px ${color}` }}
       >
         {icon}
       </span>
-      <div className="min-w-0">
-        <p className="font-mono text-2xl leading-none font-bold" style={{ color }}>
+      <div className="min-w-0 flex-1">
+        <p
+          className="font-mono text-xl leading-none font-bold tabular-nums sm:text-2xl"
+          style={{ color }}
+        >
           {value}
         </p>
-        <p className="label mt-1.5 truncate">{label}</p>
-        <p className="truncate font-mono text-[0.62rem] text-mute">{sub}</p>
+        <p className="label mt-1.5 leading-snug">{label}</p>
+        <p className="mt-0.5 truncate font-mono text-[0.58rem] text-mute sm:text-[0.62rem]">{sub}</p>
       </div>
+    </div>
+  )
+}
+
+function ChartCard({ color, children }: { color: string; children: React.ReactNode }) {
+  return (
+    <div
+      className="neon-card flex min-w-0 items-center justify-center p-5 sm:p-6"
+      style={{ ['--card-neon' as string]: color }}
+    >
+      {children}
     </div>
   )
 }
@@ -92,16 +107,6 @@ export default function AnalyticsOverlay({ onClose }: { onClose: () => void }) {
   const { data: skills = [] } = useSkills()
   const { data: posts = [] } = usePosts()
   const [vitals] = useState<Vital[]>(() => readVitals())
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
-    document.addEventListener('keydown', onKey)
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = ''
-    }
-  }, [onClose])
 
   const m = useMemo(() => {
     const authorRatings = projects.map((p) => p.rating).filter((r): r is number => r != null)
@@ -164,137 +169,133 @@ export default function AnalyticsOverlay({ onClose }: { onClose: () => void }) {
     return { authorAvg, votes, visitorAvg, tAvg, distribution, radar, projectBars, techBars }
   }, [projects, testimonials, skills])
 
+  const totalReviewVotes = m.distribution.reduce((s, d) => s + d.value, 0)
+
   return (
-    <div className="palette-overlay" onClick={onClose} role="presentation">
-      <div
-        className="overlay-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Public analytics dashboard"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-line bg-surface/95 px-5 py-4 backdrop-blur-md sm:px-7">
-          <div>
-            <p className="label">/// ANALYTICS · PUBLIC DASHBOARD</p>
-            <h2 className="section-title mt-1 text-lg sm:text-xl">Performance &amp; ratings</h2>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close analytics"
-            className="brutal-flat flex h-10 w-10 shrink-0 items-center justify-center bg-bg transition-colors hover:text-accent"
-          >
-            <X size={16} />
-          </button>
+    <OverlayShell
+      onClose={onClose}
+      label="/// ANALYTICS · PUBLIC DASHBOARD"
+      title="Performance & ratings"
+      ariaLabel="Public analytics dashboard"
+      actions={
+        <span className="brutal-flat hidden items-center gap-2 bg-bg px-3 py-2 font-mono text-[0.62rem] tracking-widest text-mute sm:inline-flex">
+          <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
+          LIVE DATA
+        </span>
+      }
+    >
+      <div className="space-y-5 sm:space-y-6">
+        {/* KPI row */}
+        <div className="grid grid-cols-1 gap-3 min-[440px]:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+          <KpiCard
+            icon={<Star size={19} />}
+            value={m.authorAvg ? m.authorAvg.toFixed(2) : '0.00'}
+            label="average rating"
+            sub={`author · ${projects.length} projects`}
+            color="var(--neon-1)"
+          />
+          <KpiCard
+            icon={<Users size={19} />}
+            value={m.visitorAvg ? m.visitorAvg.toFixed(2) : '0.0'}
+            label="visitor rating"
+            sub={
+              m.votes > 0
+                ? `${m.votes} public vote${m.votes === 1 ? '' : 's'}`
+                : 'awaiting first vote'
+            }
+            color="var(--neon-2)"
+          />
+          <KpiCard
+            icon={<Quote size={19} />}
+            value={m.tAvg ? m.tAvg.toFixed(2) : '0.00'}
+            label="testimonial score"
+            sub={`${testimonials.length} review${testimonials.length === 1 ? '' : 's'}`}
+            color="var(--neon-3)"
+          />
+          <KpiCard
+            icon={<Layers size={19} />}
+            value={String(projects.length)}
+            label="projects shipped"
+            sub={`${posts.length} article${posts.length === 1 ? '' : 's'} written`}
+            color="var(--neon-4)"
+          />
         </div>
 
-        <div className="space-y-6 px-5 py-6 sm:px-7">
-          {/* KPI row */}
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <KpiCard
-              icon={<Star size={19} />}
-              value={m.authorAvg ? m.authorAvg.toFixed(2) : '—'}
-              label="average rating"
-              sub={`author · ${projects.length} projects`}
+        {/* charts row */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <ChartCard color="var(--neon-1)">
+            <RadialGauge
+              value={m.authorAvg}
+              label="author score"
+              sub={`${projects.length} rated projects`}
               color="var(--neon-1)"
             />
-            <KpiCard
-              icon={<Users size={19} />}
-              value={m.visitorAvg ? m.visitorAvg.toFixed(2) : '—'}
-              label="visitor rating"
-              sub={`${m.votes} public vote${m.votes === 1 ? '' : 's'}`}
+          </ChartCard>
+          <ChartCard color="var(--neon-2)">
+            <RadialGauge
+              value={m.visitorAvg}
+              label="visitor score"
+              sub={`${m.votes} vote${m.votes === 1 ? '' : 's'} cast`}
               color="var(--neon-2)"
             />
-            <KpiCard
-              icon={<Quote size={19} />}
-              value={m.tAvg ? m.tAvg.toFixed(2) : '—'}
-              label="testimonial score"
-              sub={`${testimonials.length} review${testimonials.length === 1 ? '' : 's'}`}
-              color="var(--neon-3)"
+          </ChartCard>
+          <ChartCard color="var(--neon-3)">
+            <Donut
+              segments={m.distribution}
+              centerValue={totalReviewVotes > 0 ? m.tAvg.toFixed(1) : '0.0'}
+              centerLabel="avg score"
             />
-            <KpiCard
-              icon={<Layers size={19} />}
-              value={String(projects.length)}
-              label="projects shipped"
-              sub={`${posts.length} article${posts.length === 1 ? '' : 's'} written`}
-              color="var(--neon-4)"
-            />
-          </div>
+          </ChartCard>
+          <ChartCard color="var(--neon-5)">
+            <Radar data={m.radar} color="var(--neon-5)" />
+          </ChartCard>
+        </div>
 
-          {/* charts row */}
-          <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
-            <div className="neon-card flex items-center justify-center p-6" style={{ ['--card-neon' as string]: 'var(--neon-1)' }}>
-              <RadialGauge
-                value={m.authorAvg}
-                label="author score"
-                sub={`${projects.length} rated projects`}
-                color="var(--neon-1)"
-              />
-            </div>
-            <div className="neon-card flex items-center justify-center p-6" style={{ ['--card-neon' as string]: 'var(--neon-2)' }}>
-              <RadialGauge
-                value={m.visitorAvg}
-                label="visitor score"
-                sub={`${m.votes} votes cast`}
-                color="var(--neon-2)"
-              />
-            </div>
-            <div className="neon-card flex items-center justify-center p-6" style={{ ['--card-neon' as string]: 'var(--neon-3)' }}>
-              <Donut
-                segments={m.distribution}
-                centerValue={m.tAvg ? m.tAvg.toFixed(1) : '—'}
-                centerLabel="avg score"
-              />
-            </div>
-            <div className="neon-card flex items-center justify-center p-6" style={{ ['--card-neon' as string]: 'var(--neon-5)' }}>
-              <Radar data={m.radar} color="var(--neon-5)" />
-            </div>
-          </div>
-
-          {/* bars row */}
-          <div className="grid gap-5 lg:grid-cols-2">
-            <div
-              className="neon-card p-6"
-              style={{ ['--card-neon' as string]: 'var(--neon-4)' }}
-            >
-              <p className="label mb-5">/// RATINGS BY PROJECT</p>
-              <HBars data={m.projectBars} max={5} />
-            </div>
-            <div
-              className="neon-card p-6"
-              style={{ ['--card-neon' as string]: 'var(--neon-6)' }}
-            >
-              <p className="label mb-5">/// TOP TECH STACK</p>
-              <HBars
-                data={m.techBars}
-                max={Math.max(1, ...m.techBars.map((b) => b.value))}
-                delay={0.2}
-              />
-            </div>
-          </div>
-
-          {/* live vitals */}
+        {/* bars row */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div
-            className="neon-card flex flex-wrap items-center gap-x-6 gap-y-3 p-5"
-            style={{ ['--card-neon' as string]: 'var(--neon-1)' }}
+            className="neon-card min-w-0 p-5 sm:p-6"
+            style={{ ['--card-neon' as string]: 'var(--neon-4)' }}
           >
-            <p className="label">/// LIVE VITALS · YOUR SESSION</p>
-            {vitals.map(({ label, value, Icon }) => (
-              <span
-                key={label}
-                className="flex items-center gap-2 font-mono text-xs tracking-widest text-mute"
-              >
-                <Icon size={13} className="text-accent" />
-                {label} <b className="text-ink">{value}</b>
-              </span>
-            ))}
-            <span className="flex items-center gap-2 font-mono text-[0.62rem] tracking-widest text-mute">
-              <Activity size={13} className="text-accent" />
-              MEASURED LIVE IN YOUR BROWSER
-            </span>
+            <p className="label mb-5">/// RATINGS BY PROJECT</p>
+            <HBars data={m.projectBars} max={5} />
+          </div>
+          <div
+            className="neon-card min-w-0 p-5 sm:p-6"
+            style={{ ['--card-neon' as string]: 'var(--neon-6)' }}
+          >
+            <p className="label mb-5">/// TOP TECH STACK</p>
+            <HBars
+              data={m.techBars}
+              max={Math.max(1, ...m.techBars.map((b) => b.value))}
+              delay={0.2}
+            />
           </div>
         </div>
+
+        {/* live vitals */}
+        <div
+          className="neon-card p-5 sm:p-6"
+          style={{ ['--card-neon' as string]: 'var(--neon-1)' }}
+        >
+          <p className="label mb-4">/// LIVE VITALS · YOUR SESSION</p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {vitals.map(({ label, value, Icon }) => (
+              <div key={label} className="rounded-xl border border-line bg-bg px-3.5 py-3">
+                <p className="flex items-center gap-1.5 font-mono text-[0.58rem] tracking-widest text-mute">
+                  <Icon size={11} className="text-accent" />
+                  {label}
+                </p>
+                <p className="mt-1 font-mono text-sm font-bold tabular-nums">{value}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 flex items-center gap-1.5 font-mono text-[0.58rem] tracking-widest text-mute">
+            <Activity size={11} className="text-accent" />
+            MEASURED LIVE IN YOUR BROWSER
+          </p>
+        </div>
       </div>
-    </div>
+    </OverlayShell>
   )
 }

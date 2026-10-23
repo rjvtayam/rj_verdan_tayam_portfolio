@@ -30,9 +30,13 @@ export function RadialGauge({
   const c = size / 2
 
   return (
-    <div className="flex flex-col items-center gap-3">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
+    <div className="flex w-full flex-col items-center gap-3">
+      <div className="relative w-full" style={{ maxWidth: size, aspectRatio: '1 / 1' }}>
+        <svg
+          viewBox={`0 0 ${size} ${size}`}
+          className="h-full w-full"
+          aria-hidden="true"
+        >
           <circle cx={c} cy={c} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke} />
           <circle
             cx={c}
@@ -58,12 +62,16 @@ export function RadialGauge({
             style={{ filter: `drop-shadow(0 0 6px ${color})` }}
           />
         </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="font-mono text-[1.75rem] leading-none font-bold" style={{ color }}>
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-2">
+          <span className="font-mono text-[1.5rem] leading-none font-bold tabular-nums sm:text-[1.75rem]" style={{ color }}>
             <CountUp value={value} decimals={decimals} />
             <span className="text-sm text-mute">/{max}</span>
           </span>
-          {sub && <span className="mt-1.5 font-mono text-[0.6rem] tracking-widest text-mute">{sub}</span>}
+          {sub && (
+            <span className="mt-1.5 text-center font-mono text-[0.58rem] tracking-widest text-mute">
+              {sub}
+            </span>
+          )}
         </div>
       </div>
       <p className="label text-center">{label}</p>
@@ -135,9 +143,9 @@ export function Donut({
   const c = size / 2
 
   return (
-    <div className="flex flex-col items-center gap-3">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
+    <div className="flex w-full flex-col items-center gap-3">
+      <div className="relative w-full" style={{ maxWidth: size, aspectRatio: '1 / 1' }}>
+        <svg viewBox={`0 0 ${size} ${size}`} className="h-full w-full" aria-hidden="true">
           <circle cx={c} cy={c} r={r} fill="none" stroke="var(--line)" strokeWidth={thickness} opacity={0.4} />
           {arcs.map(
             (a, i) =>
@@ -161,13 +169,17 @@ export function Donut({
           )}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="font-mono text-2xl font-bold text-accent">{centerValue}</span>
-          <span className="mt-1 font-mono text-[0.58rem] tracking-widest text-mute uppercase">{centerLabel}</span>
+          <span className="font-mono text-xl font-bold tabular-nums text-accent sm:text-2xl">
+            {centerValue}
+          </span>
+          <span className="mt-1 text-center font-mono text-[0.56rem] tracking-widest text-mute uppercase">
+            {centerLabel}
+          </span>
         </div>
       </div>
-      <ul className="flex flex-wrap justify-center gap-x-4 gap-y-1.5">
+      <ul className="flex max-w-full flex-wrap justify-center gap-x-3 gap-y-1.5">
         {segments.map((s) => (
-          <li key={s.label} className="flex items-center gap-1.5 font-mono text-[0.65rem] text-mute">
+          <li key={s.label} className="flex items-center gap-1.5 font-mono text-[0.62rem] text-mute">
             <span
               className="inline-block h-2 w-2 rounded-full"
               style={{ background: s.color, boxShadow: `0 0 6px ${s.color}` }}
@@ -193,7 +205,7 @@ export function Radar({
 }) {
   const cx = size / 2
   const cy = size / 2
-  const r = size / 2 - 46
+  const r = size / 2 - 58
   const n = Math.max(data.length, 3)
 
   const point = (i: number, scale: number) => {
@@ -210,8 +222,13 @@ export function Radar({
   }).join(' ')
 
   return (
-    <div className="flex flex-col items-center gap-3">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
+    <div className="flex w-full flex-col items-center gap-3">
+      <svg
+        viewBox={`0 0 ${size} ${size}`}
+        className="h-auto w-full"
+        style={{ maxWidth: size }}
+        aria-hidden="true"
+      >
         {[0.25, 0.5, 0.75, 1].map((s) => (
           <polygon
             key={s}
@@ -247,7 +264,7 @@ export function Radar({
           })}
         </motion.g>
         {data.map((d, i) => {
-          const [x, y] = point(i, 1.2)
+          const [x, y] = point(i, 1.16)
           const anchor = Math.abs(x - cx) < 6 ? 'middle' : x > cx ? 'start' : 'end'
           return (
             <text
@@ -257,9 +274,9 @@ export function Radar({
               textAnchor={anchor}
               dominantBaseline="middle"
               fill="var(--muted)"
-              fontSize="9.5"
+              fontSize="9"
               fontFamily="var(--font-mono)"
-              letterSpacing="1"
+              letterSpacing="0.8"
             >
               {d.label.toUpperCase()}
             </text>

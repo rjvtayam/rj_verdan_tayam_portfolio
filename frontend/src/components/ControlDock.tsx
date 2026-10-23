@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Command, Moon, Sun } from 'lucide-react'
+import { Command } from 'lucide-react'
 
 const ACCENTS = [
   { id: 'lime', label: 'lime', color: '#c6ff00' },
@@ -10,7 +10,6 @@ const ACCENTS = [
 
 export default function ControlDock() {
   const [accent, setAccent] = useState(() => document.documentElement.dataset.accent ?? 'lime')
-  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme ?? 'dark')
 
   useEffect(() => {
     document.documentElement.dataset.accent = accent
@@ -19,31 +18,10 @@ export default function ControlDock() {
   }, [accent])
 
   useEffect(() => {
-    const sync = () => {
-      setTheme(document.documentElement.dataset.theme ?? 'light')
-      setAccent(document.documentElement.dataset.accent ?? 'lime')
-    }
-    window.addEventListener('theme:changed', sync)
+    const sync = () => setAccent(document.documentElement.dataset.accent ?? 'lime')
     window.addEventListener('accent:changed', sync)
-    return () => {
-      window.removeEventListener('theme:changed', sync)
-      window.removeEventListener('accent:changed', sync)
-    }
+    return () => window.removeEventListener('accent:changed', sync)
   }, [])
-
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark'
-    setTheme(next)
-    document.documentElement.dataset.theme = next
-    localStorage.setItem('theme', next)
-    document
-      .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', next === 'dark' ? '#0a0a0c' : '#f4f2ec')
-    if (!localStorage.getItem('accent')) {
-      document.documentElement.dataset.accent = next === 'dark' ? 'lime' : 'flame'
-    }
-    window.dispatchEvent(new Event('theme:changed'))
-  }
 
   return (
     <div className="control-dock" aria-label="Display controls" role="group">
@@ -71,18 +49,6 @@ export default function ControlDock() {
           />
         ))}
       </div>
-
-      <span className="dock-divider" aria-hidden="true" />
-      <p className="dock-caption">Mode</p>
-      <button
-        type="button"
-        className="dock-btn"
-        onClick={toggleTheme}
-        aria-label="Toggle light and dark mode"
-        title="Toggle light / dark"
-      >
-        {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
-      </button>
 
       <span className="dock-divider" aria-hidden="true" />
       <p className="dock-caption">Find</p>

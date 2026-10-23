@@ -29,15 +29,11 @@ export default function CommandPalette({ open, onClose }: { open: boolean; onClo
       { id: 'contact', label: 'Contact', hint: 'navigate', run: go('/contact') },
       { id: 'admin', label: 'Admin console', hint: 'navigate', run: go('/admin') },
       {
-        id: 'theme',
-        label: 'Toggle dark / light theme',
+        id: 'photos',
+        label: 'View photos',
         hint: 'action',
         run: () => {
-          const root = document.documentElement
-          const next = root.dataset.theme === 'dark' ? 'light' : 'dark'
-          root.dataset.theme = next
-          localStorage.setItem('theme', next)
-          window.dispatchEvent(new Event('theme:changed'))
+          window.dispatchEvent(new Event('hud:photos'))
           onClose()
         },
       },
