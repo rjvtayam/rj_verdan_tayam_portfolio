@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Command } from 'lucide-react'
+import { Command, Images } from 'lucide-react'
 
 const ACCENTS = [
   { id: 'lime', label: 'lime', color: '#c6ff00' },
@@ -49,6 +49,18 @@ export default function ControlDock() {
           />
         ))}
       </div>
+
+      <span className="dock-divider" aria-hidden="true" />
+      <p className="dock-caption">Photos</p>
+      <button
+        type="button"
+        className="dock-btn"
+        onClick={() => window.dispatchEvent(new Event('hud:photos'))}
+        aria-label="View photos"
+        title="View photos"
+      >
+        <Images size={15} />
+      </button>
 
       <span className="dock-divider" aria-hidden="true" />
       <p className="dock-caption">Find</p>

@@ -95,7 +95,7 @@ export default function ProjectCard({ project, index, featured = false }: Props)
             {project.tech_stack.slice(0, featured ? 6 : 4).map((tech) => (
               <span
                 key={tech}
-                className="brutal-flat bg-bg px-2 py-1 font-mono text-[0.62rem] tracking-wider uppercase transition-colors group-hover:border-[var(--card-neon)]"
+                className="pill-neon px-2 py-1 font-mono text-[0.62rem] tracking-wider uppercase"
               >
                 {tech}
               </span>

@@ -64,6 +64,13 @@ export default function RootLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <div className="site-bg" aria-hidden="true">
+        <div className="site-bg__grid" />
+        <i className="site-bg__orb" />
+        <i className="site-bg__orb" />
+        <i className="site-bg__orb" />
+        <div className="site-bg__vignette" />
+      </div>
       <BootIntro />
       <CustomCursor />
       <LeftRail />

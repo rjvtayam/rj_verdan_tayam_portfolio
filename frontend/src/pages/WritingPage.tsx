@@ -1,5 +1,6 @@
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, Newspaper } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import PageHero from '../components/PageHero'
 import Reveal from '../components/Reveal'
 import { formatDate } from '../lib/format'
 import { usePosts } from '../lib/hooks'
@@ -8,18 +9,20 @@ export default function WritingPage() {
   const { data: posts = [], isLoading, error } = usePosts()
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-24">
-      <Reveal>
-        <p className="label mb-3">/// WRITING</p>
-        <h1 className="section-title text-[clamp(2.2rem,1.4rem+3.4vw,3.6rem)]">
-          Notes from the <span className="text-accent">build</span>
-        </h1>
-        <p className="mt-4 max-w-2xl text-mute">
-          Practical write-ups on architecture, PostgreSQL, React and shipping software that holds up.
-        </p>
-      </Reveal>
+    <>
+      <PageHero
+        label="WRITING"
+        title={
+          <>
+            Notes from the <span className="grad-text">build</span>
+          </>
+        }
+        icon={Newspaper}
+        ghost="WRITING"
+        kicker="Practical write-ups on architecture, PostgreSQL, React and shipping software that holds up."
+      />
 
-      <div className="mt-12">
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 md:py-16">
         {isLoading && (
           <div className="space-y-4">
             {[0, 1, 2].map((i) => (
@@ -68,6 +71,6 @@ export default function WritingPage() {
           ))}
         </div>
       </div>
-    </div>
+    </>
   )
 }

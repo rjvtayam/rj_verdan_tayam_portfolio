@@ -1,4 +1,4 @@
-import { Mail } from 'lucide-react'
+import { FolderKanban, Mail, Newspaper, Send, UserRound } from 'lucide-react'
 import { FacebookIcon, GithubIcon, LinkedinIcon } from './SocialIcons'
 import LocalClock from './LocalClock'
 import { Link } from 'react-router-dom'
@@ -12,9 +12,17 @@ const SOCIALS = [
   { href: 'mailto:rickyjhon.tayam@gmail.com', label: 'EMAIL', Icon: Mail },
 ]
 
+const SITEMAP = [
+  { to: '/projects', label: '01/ WORK', Icon: FolderKanban, color: 'var(--neon-1)' },
+  { to: '/writing', label: '02/ WRITING', Icon: Newspaper, color: 'var(--neon-2)' },
+  { to: '/about', label: '03/ ABOUT', Icon: UserRound, color: 'var(--neon-3)' },
+  { to: '/contact', label: '04/ CONTACT', Icon: Send, color: 'var(--neon-5)' },
+]
+
 export default function Footer() {
   return (
     <footer className="border-t border-line bg-surface">
+      <div className="gradient-strip" aria-hidden="true" />
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-3">
         <div>
           <p className="font-mono text-2xl font-bold tracking-tight">R.J. VERDAN TAYAM</p>
@@ -36,16 +44,24 @@ export default function Footer() {
 
         <div>
           <p className="label mb-4">// SITEMAP</p>
-          <ul className="space-y-2 font-mono text-sm">
-            {[
-              { to: '/projects', label: '01/ WORK' },
-              { to: '/writing', label: '02/ WRITING' },
-              { to: '/about', label: '03/ ABOUT' },
-              { to: '/contact', label: '04/ CONTACT' },
-            ].map((l) => (
-              <li key={l.to}>
-                <Link to={l.to} className="link-underline hover:text-accent">
-                  {l.label}
+          <ul className="space-y-2.5 font-mono text-sm">
+            {SITEMAP.map(({ to, label, Icon, color }) => (
+              <li key={to}>
+                <Link
+                  to={to}
+                  className="link-underline group inline-flex items-center gap-2.5 transition-colors"
+                >
+                  <span
+                    className="flex h-6 w-6 items-center justify-center rounded-[6px] transition-transform group-hover:-translate-y-0.5"
+                    style={{
+                      background: `color-mix(in srgb, ${color} 16%, var(--bg))`,
+                      color,
+                      boxShadow: `0 0 10px -4px ${color}`,
+                    }}
+                  >
+                    <Icon size={13} />
+                  </span>
+                  <span className="group-hover:text-accent">{label}</span>
                 </Link>
               </li>
             ))}

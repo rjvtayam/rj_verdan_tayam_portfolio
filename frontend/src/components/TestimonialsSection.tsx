@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Check, ImagePlus, Send, X } from 'lucide-react'
+import { Check, ImagePlus, Quote, Send, X } from 'lucide-react'
 import { useSubmitTestimonial, useTestimonials } from '../lib/hooks'
 import type { TestimonialInput } from '../lib/types'
 import Avatar from './Avatar'
@@ -55,6 +55,7 @@ export default function TestimonialsSection() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeader
           label="Testimonials"
+          icon={Quote}
           title="What collaborators say"
           action={
             <button

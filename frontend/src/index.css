@@ -987,6 +987,271 @@ html.cursor-fx select {
   color: var(--ink);
 }
 
+/* ---------- ambient site background (all pages) ---------- */
+.site-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.site-bg__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+  background-size: 56px 56px;
+  opacity: 0.4;
+  -webkit-mask-image: radial-gradient(ellipse 90% 75% at 50% 35%, black 25%, transparent 85%);
+  mask-image: radial-gradient(ellipse 90% 75% at 50% 35%, black 25%, transparent 85%);
+}
+.site-bg__orb {
+  position: absolute;
+  width: 50vmax;
+  height: 50vmax;
+  border-radius: 50%;
+  filter: blur(95px);
+  opacity: 0.12;
+  animation: aurora-drift 32s ease-in-out infinite alternate;
+}
+.site-bg__orb:nth-child(2) {
+  top: -22%;
+  left: -14%;
+  background: radial-gradient(circle, var(--neon-1), transparent 65%);
+}
+.site-bg__orb:nth-child(3) {
+  top: 6%;
+  right: -20%;
+  background: radial-gradient(circle, var(--neon-2), transparent 65%);
+  animation-duration: 38s;
+  animation-delay: -9s;
+}
+.site-bg__orb:nth-child(4) {
+  bottom: -26%;
+  left: 18%;
+  background: radial-gradient(circle, var(--neon-3), transparent 65%);
+  animation-duration: 44s;
+  animation-delay: -18s;
+}
+.site-bg__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 130% 85% at 50% 0%,
+    transparent 45%,
+    color-mix(in srgb, var(--bg) 88%, transparent) 100%
+  );
+}
+
+/* ---------- icon chip (solid accent) ---------- */
+.chip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow:
+    0 0 26px -8px var(--accent),
+    4px 4px 0 0 color-mix(in srgb, var(--accent) 35%, transparent);
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease;
+}
+.chip-icon--sm {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+.group:hover .chip-icon,
+.chip-icon:hover {
+  transform: translateY(-2px) rotate(-6deg) scale(1.07);
+  box-shadow:
+    0 0 32px -8px var(--accent),
+    5px 5px 0 0 color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* ---------- gradient text + section underline ---------- */
+.grad-text {
+  background: linear-gradient(92deg, var(--accent) 5%, var(--neon-2) 55%, var(--neon-3) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.section-underline {
+  display: block;
+  width: 76px;
+  height: 3px;
+  margin-top: 14px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--neon-2));
+  box-shadow: 0 0 14px -3px var(--accent);
+  transform-origin: left;
+  animation: underline-grow 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+@keyframes underline-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ---------- button shine sweep ---------- */
+.brutal-hover {
+  position: relative;
+  overflow: hidden;
+}
+.brutal-hover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    color-mix(in srgb, #ffffff 32%, transparent) 50%,
+    transparent 65%
+  );
+  transform: translateX(-130%);
+  transition: transform 0.55s ease;
+  pointer-events: none;
+}
+.brutal-hover:hover::after,
+.brutal-hover:focus-visible::after {
+  transform: translateX(130%);
+}
+
+/* ---------- pulsing glow (primary CTAs) ---------- */
+.glow-pulse {
+  animation: glow-pulse 2.8s ease-in-out infinite;
+}
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow:
+      4px 4px 0 0 var(--accent),
+      0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+  50% {
+    box-shadow:
+      4px 4px 0 0 var(--accent),
+      0 0 28px 3px color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+}
+
+/* ---------- tinted neon pills ---------- */
+.pill-neon {
+  border: 1px solid color-mix(in srgb, var(--card-neon, var(--accent)) 55%, var(--line));
+  background: color-mix(in srgb, var(--card-neon, var(--accent)) 10%, var(--surface));
+  color: color-mix(in srgb, var(--card-neon, var(--accent)) 78%, var(--ink));
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+.pill-neon:hover {
+  background: color-mix(in srgb, var(--card-neon, var(--accent)) 18%, var(--surface));
+  transform: translateY(-1px);
+}
+
+/* ---------- animated gradient strip ---------- */
+.gradient-strip {
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--neon-1),
+    var(--neon-2),
+    var(--neon-3),
+    var(--neon-5),
+    var(--neon-4),
+    var(--neon-6),
+    var(--neon-1)
+  );
+  background-size: 200% 100%;
+  animation: gradient-slide 9s linear infinite;
+}
+@keyframes gradient-slide {
+  to {
+    background-position: 200% 0;
+  }
+}
+
+/* ---------- page hero (inner pages) ---------- */
+.page-hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+}
+.page-hero__ghost {
+  position: absolute;
+  right: -0.04em;
+  bottom: -0.18em;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(5rem, 4rem + 13vw, 12rem);
+  line-height: 1;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink) 5%, transparent);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* ---------- hero extras (home) ---------- */
+.hero-glow {
+  position: absolute;
+  top: -16vmin;
+  left: -14vmin;
+  width: 64vmin;
+  height: 64vmin;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent) 30%, transparent),
+    transparent 66%
+  );
+  filter: blur(46px);
+  opacity: 0.55;
+  animation: aurora-drift 20s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.orbit-ring {
+  position: absolute;
+  border: 1px dashed color-mix(in srgb, var(--accent) 38%, transparent);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: orbit-spin 46s linear infinite;
+}
+.orbit-ring::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: calc(50% - 5px);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
+.orbit-ring--2 {
+  animation-duration: 70s;
+  animation-direction: reverse;
+  border-color: color-mix(in srgb, var(--neon-2) 30%, transparent);
+}
+.orbit-ring--2::before {
+  background: var(--neon-2);
+  box-shadow: 0 0 12px var(--neon-2);
+}
+@keyframes orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* ---------- print (profile overlay → resume sheet) ---------- */
 @media print {
   :root {

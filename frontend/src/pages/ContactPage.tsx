@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { motion } from 'framer-motion'
 import { Check, Copy, Mail, MapPin, Phone, Send } from 'lucide-react'
 import { FacebookIcon, GithubIcon, LinkedinIcon } from '../components/SocialIcons'
+import PageHero from '../components/PageHero'
 import Reveal from '../components/Reveal'
 import { useSendMessage } from '../lib/hooks'
 import { ApiError } from '../lib/api'
@@ -29,19 +30,21 @@ export default function ContactPage() {
     setForm((f) => ({ ...f, [key]: e.target.value }))
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-24">
-      <Reveal>
-        <p className="label mb-3">/// CONTACT</p>
-        <h1 className="section-title text-[clamp(2.2rem,1.4rem+3.4vw,3.6rem)]">
-          Let&apos;s build <span className="text-accent">something</span>
-        </h1>
-        <p className="mt-4 max-w-xl text-mute">
-          Project inquiries, collaborations or roles — send a message and it lands straight in my
-          inbox.
-        </p>
-      </Reveal>
+    <>
+      <PageHero
+        label="CONTACT"
+        title={
+          <>
+            Let&apos;s build <span className="grad-text">something</span>
+          </>
+        }
+        icon={Send}
+        ghost="CONTACT"
+        kicker="Project inquiries, collaborations or roles — send a message and it lands straight in my inbox."
+      />
 
-      <div className="mt-12 grid gap-10 lg:grid-cols-[1.4fr_1fr]">
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 md:py-16">
+        <div className="mt-4 grid gap-10 lg:grid-cols-[1.4fr_1fr]">
         {/* form / success */}
         <Reveal delay={0.05}>
           {mutation.isSuccess ? (
@@ -246,7 +249,8 @@ export default function ContactPage() {
             </p>
           </div>
         </Reveal>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

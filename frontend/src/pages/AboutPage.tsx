@@ -1,3 +1,5 @@
+import { Award, Briefcase, GraduationCap, UserRound, Wrench } from 'lucide-react'
+import PageHero from '../components/PageHero'
 import Reveal from '../components/Reveal'
 import SkillRadar from '../components/SkillRadar'
 import StarRating from '../components/StarRating'
@@ -55,33 +57,29 @@ export default function AboutPage() {
 
   return (
     <>
-      <header className="grid-bg relative overflow-hidden border-b border-line">
-        <div className="starfield" aria-hidden="true" />
-        <div className="aurora">
-          <i />
-          <i />
-          <i />
-          <i />
-        </div>
-        <div className="relative z-10 mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-24">
-          <Reveal>
-            <p className="label mb-3">/// ABOUT</p>
-            <h1 className="section-title text-[clamp(2.2rem,1.4rem+3.4vw,3.6rem)]">
-              Engineer first. <span className="text-accent">Designer</span> on purpose.
-            </h1>
-          </Reveal>
-          <Reveal delay={0.08} className="mt-6 grid gap-6 md:grid-cols-2">
-            <p className="leading-relaxed text-mute">
-              I&apos;m R.J. Verdan Tayam, a full-stack web developer. I build products end to end:
-              database schema and migrations, typed APIs, and the interface people actually touch.
-            </p>
-            <p className="leading-relaxed text-mute">
-              My default stack is React + FastAPI + PostgreSQL — not because it is trendy, but
-              because it makes contracts explicit and systems easy to reason about six months later.
-            </p>
-          </Reveal>
-        </div>
-      </header>
+      <PageHero
+        label="ABOUT"
+        title={
+          <>
+            Engineer first. <span className="grad-text">Designer</span> on purpose.
+          </>
+        }
+        icon={UserRound}
+        ghost="ABOUT"
+      />
+
+      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 md:py-14">
+        <Reveal delay={0.08} className="grid gap-6 md:grid-cols-2">
+          <p className="leading-relaxed text-mute">
+            I&apos;m R.J. Verdan Tayam, a full-stack web developer. I build products end to end:
+            database schema and migrations, typed APIs, and the interface people actually touch.
+          </p>
+          <p className="leading-relaxed text-mute">
+            My default stack is React + FastAPI + PostgreSQL — not because it is trendy, but
+            because it makes contracts explicit and systems easy to reason about six months later.
+          </p>
+        </Reveal>
+      </section>
 
       {/* principles */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
@@ -102,8 +100,14 @@ export default function AboutPage() {
       <section className="border-y border-line bg-surface">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
           <Reveal>
-            <p className="label mb-3">/// TOOLKIT</p>
+            <div className="mb-3 flex items-center gap-3">
+              <span className="chip-icon chip-icon--sm">
+                <Wrench size={16} />
+              </span>
+              <p className="label">/// TOOLKIT</p>
+            </div>
             <h2 className="section-title">Skills I use to ship</h2>
+            <span className="section-underline" aria-hidden="true" />
           </Reveal>
 
           <div className="mt-10 grid gap-8 lg:grid-cols-[340px_1fr]">
@@ -136,8 +140,14 @@ export default function AboutPage() {
       {/* experience */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-24">
         <Reveal>
-          <p className="label mb-3">/// TRAJECTORY</p>
+          <div className="mb-3 flex items-center gap-3">
+            <span className="chip-icon chip-icon--sm">
+              <Briefcase size={16} />
+            </span>
+            <p className="label">/// TRAJECTORY</p>
+          </div>
           <h2 className="section-title">Experience</h2>
+          <span className="section-underline" aria-hidden="true" />
         </Reveal>
 
         <div className="mt-12 border-l border-line pl-6 sm:pl-10">
@@ -168,8 +178,14 @@ export default function AboutPage() {
       <section className="border-y border-line bg-surface">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
           <Reveal>
-            <p className="label mb-3">/// EDUCATION</p>
+            <div className="mb-3 flex items-center gap-3">
+              <span className="chip-icon chip-icon--sm">
+                <GraduationCap size={16} />
+              </span>
+              <p className="label">/// EDUCATION</p>
+            </div>
             <h2 className="section-title">Where I studied</h2>
+            <span className="section-underline" aria-hidden="true" />
           </Reveal>
 
           <div className="mt-10 grid gap-6 md:grid-cols-2">
@@ -206,10 +222,16 @@ export default function AboutPage() {
       {/* certifications & awards */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
         <Reveal>
-          <p className="label mb-3">/// CERTIFICATIONS &amp; AWARDS</p>
+          <div className="mb-3 flex items-center gap-3">
+            <span className="chip-icon chip-icon--sm">
+              <Award size={16} />
+            </span>
+            <p className="label">/// CERTIFICATIONS &amp; AWARDS</p>
+          </div>
           <h2 className="section-title">
-            Certified &amp; <span className="text-accent">award-winning</span>
+            Certified &amp; <span className="grad-text">award-winning</span>
           </h2>
+          <span className="section-underline" aria-hidden="true" />
         </Reveal>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

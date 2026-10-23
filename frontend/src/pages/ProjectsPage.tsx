@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { Terminal as TerminalIcon } from 'lucide-react'
+import { FolderKanban, Terminal as TerminalIcon } from 'lucide-react'
+import PageHero from '../components/PageHero'
 import ProjectCard from '../components/ProjectCard'
 import Reveal from '../components/Reveal'
 import { useProjects } from '../lib/hooks'
@@ -19,19 +20,22 @@ export default function ProjectsPage() {
     : projects
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-24">
-      <Reveal>
-        <p className="label mb-3">/// WORK</p>
-        <h1 className="section-title text-[clamp(2.2rem,1.4rem+3.4vw,3.6rem)]">
-          Selected <span className="text-accent">projects</span>
-        </h1>
-        <p className="mt-4 max-w-2xl text-mute">
-          Each case study documents the problem, the technical approach and the measured result.
-        </p>
-      </Reveal>
+    <>
+      <PageHero
+        label="WORK"
+        title={
+          <>
+            Selected <span className="grad-text">projects</span>
+          </>
+        }
+        icon={FolderKanban}
+        ghost="WORK"
+        kicker="Each case study documents the problem, the technical approach and the measured result."
+      />
 
-      {tags.length > 0 && (
-        <Reveal delay={0.1} className="mt-8 flex flex-wrap gap-2">
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 md:py-16">
+        {tags.length > 0 && (
+          <Reveal className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setActiveTag(null)}
@@ -77,13 +81,14 @@ export default function ProjectsPage() {
         )}
 
         {filtered.length > 0 && (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filtered.map((project, i) => (
               <ProjectCard key={project.id} project={project} index={i} />
             ))}
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   )
 }

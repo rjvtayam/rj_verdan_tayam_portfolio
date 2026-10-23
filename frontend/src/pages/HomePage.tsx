@@ -1,5 +1,15 @@
-import { motion } from 'framer-motion'
-import { ArrowRight, ArrowUpRight, ChevronDown } from 'lucide-react'
+import { motion, useMotionValue, useTransform } from 'framer-motion'
+import {
+  ArrowRight,
+  ArrowUpRight,
+  ChevronDown,
+  FolderKanban,
+  Layers,
+  MessageSquare,
+  Newspaper,
+  Sparkles,
+  UserRound,
+} from 'lucide-react'
 import { Link } from 'react-router-dom'
 import CountUp from '../components/CountUp'
 import Reveal from '../components/Reveal'
@@ -32,6 +42,8 @@ const TERMINAL_LINES = [
   { cmd: 'status --now', out: 'AVAILABLE FOR WORK' },
 ]
 
+const STAT_NEON = ['var(--neon-1)', 'var(--neon-2)', 'var(--neon-5)', 'var(--neon-6)']
+
 export default function HomePage() {
   const { data: projects = [] } = useProjects()
   const { data: posts = [] } = usePosts()
@@ -40,10 +52,32 @@ export default function HomePage() {
   const featured = projects.filter((p) => p.featured).slice(0, 3)
   const latest = posts.slice(0, 3)
 
+  const mx = useMotionValue(0)
+  const my = useMotionValue(0)
+  const glowX = useTransform(mx, [-1, 1], [-26, 26])
+  const glowY = useTransform(my, [-1, 1], [-18, 18])
+  const termX = useTransform(mx, [-1, 1], [16, -16])
+  const termY = useTransform(my, [-1, 1], [12, -12])
+
+  const onHeroMove = (e: React.MouseEvent<HTMLElement>) => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const r = e.currentTarget.getBoundingClientRect()
+    mx.set(((e.clientX - r.left) / r.width) * 2 - 1)
+    my.set(((e.clientY - r.top) / r.height) * 2 - 1)
+  }
+
+  const stats = [
+    { k: 'PROJECTS SHIPPED', value: projects.length, Icon: FolderKanban },
+    { k: 'ARTICLES WRITTEN', value: posts.length, Icon: Newspaper },
+    { k: 'CORE SKILLS', value: skills.length, Icon: Sparkles },
+    { k: 'STACK DEPTH', text: 'FULL', Icon: Layers },
+  ]
+
   return (
     <>
       {/* ---------- hero ---------- */}
-      <section className="grid-bg relative overflow-hidden border-b border-line">
+      <section className="grid-bg relative overflow-hidden border-b border-line" onMouseMove={onHeroMove}>
+        <motion.div className="hero-glow" style={{ x: glowX, y: glowY }} aria-hidden="true" />
         <div className="starfield" aria-hidden="true" />
         <span className="scan-line" aria-hidden="true" />
         <div className="aurora">
@@ -105,7 +139,7 @@ export default function HomePage() {
               >
                 <Link
                   to="/projects"
-                  className="brutal brutal-hover inline-flex items-center gap-2 bg-accent px-6 py-3.5 font-mono text-sm font-bold tracking-widest text-accent-ink"
+                  className="brutal brutal-hover glow-pulse inline-flex items-center gap-2 bg-accent px-6 py-3.5 font-mono text-sm font-bold tracking-widest text-accent-ink"
                 >
                   VIEW WORK <ArrowRight size={16} />
                 </Link>
@@ -122,8 +156,13 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 30, rotate: -1 }}
               animate={{ opacity: 1, y: 0, rotate: -1 }}
               transition={{ duration: 0.7, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              style={{ x: termX, y: termY }}
             >
-              <Terminal lines={TERMINAL_LINES} className="w-full max-w-[440px]" />
+              <div className="relative mx-auto w-full max-w-[440px]">
+                <span className="orbit-ring" style={{ inset: '-8%' }} aria-hidden="true" />
+                <span className="orbit-ring orbit-ring--2" style={{ inset: '-19%' }} aria-hidden="true" />
+                <Terminal lines={TERMINAL_LINES} className="relative w-full max-w-[440px]" />
+              </div>
             </motion.div>
           </div>
 
@@ -134,17 +173,24 @@ export default function HomePage() {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="mt-14 grid grid-cols-2 border-t border-l border-line md:grid-cols-4"
           >
-            {[
-              { k: 'PROJECTS SHIPPED', value: projects.length },
-              { k: 'ARTICLES WRITTEN', value: posts.length },
-              { k: 'CORE SKILLS', value: skills.length },
-              { k: 'STACK DEPTH', text: 'FULL' },
-            ].map((stat) => (
-              <div key={stat.k} className="border-r border-b border-line bg-bg px-5 py-5">
-                <p className="font-mono text-3xl font-bold">
+            {stats.map((stat, i) => (
+              <div
+                key={stat.k}
+                className="relative overflow-hidden border-r border-b border-line px-5 py-5"
+                style={{ background: `color-mix(in srgb, ${STAT_NEON[i]} 7%, var(--bg))` }}
+              >
+                <span
+                  className="absolute inset-x-0 top-0 h-0.5"
+                  style={{ background: STAT_NEON[i], boxShadow: `0 0 10px ${STAT_NEON[i]}` }}
+                  aria-hidden="true"
+                />
+                <p className="font-mono text-3xl font-bold" style={{ color: STAT_NEON[i] }}>
                   {stat.text ?? (stat.value ? <CountUp value={stat.value} /> : '—')}
                 </p>
-                <p className="label mt-1">{stat.k}</p>
+                <p className="label mt-1.5 flex items-center gap-1.5">
+                  <stat.Icon size={13} style={{ color: STAT_NEON[i] }} />
+                  {stat.k}
+                </p>
               </div>
             ))}
           </motion.div>
@@ -183,9 +229,10 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 md:py-24">
         <SectionHeader
           label="SELECTED WORK"
+          icon={FolderKanban}
           title={
             <>
-              Projects with <span className="text-accent">measurable</span> outcomes
+              Projects with <span className="grad-text">measurable</span> outcomes
             </>
           }
           action={
@@ -208,10 +255,16 @@ export default function HomePage() {
       <section className="border-y border-line bg-surface">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-20 sm:px-6 md:grid-cols-2 md:py-24">
           <Reveal>
-            <p className="label mb-3">/// ABOUT</p>
+            <div className="mb-3 flex items-center gap-3">
+              <span className="chip-icon chip-icon--sm">
+                <UserRound size={16} />
+              </span>
+              <p className="label">/// ABOUT</p>
+            </div>
             <h2 className="section-title">
-              Engineer first. <span className="text-accent">Designer</span> on purpose.
+              Engineer first. <span className="grad-text">Designer</span> on purpose.
             </h2>
+            <span className="section-underline" aria-hidden="true" />
           </Reveal>
           <Reveal delay={0.1} className="space-y-5">
             <p className="leading-relaxed text-mute">
@@ -238,6 +291,7 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 md:py-24">
         <SectionHeader
           label="WRITING"
+          icon={Newspaper}
           title="Notes from the build"
           action={
             <Link
@@ -262,13 +316,18 @@ export default function HomePage() {
       <section className="border-t border-line bg-surface">
         <div className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6 md:py-24">
           <Reveal>
-            <p className="label mb-4">/// NEXT</p>
+            <div className="mb-4 flex items-center justify-center gap-3">
+              <span className="chip-icon chip-icon--sm">
+                <MessageSquare size={16} />
+              </span>
+              <p className="label">/// NEXT</p>
+            </div>
             <h2 className="section-title mx-auto max-w-2xl">
-              Have a product to ship? <span className="text-accent">Let&apos;s talk.</span>
+              Have a product to ship? <span className="grad-text">Let&apos;s talk.</span>
             </h2>
             <Link
               to="/contact"
-              className="brutal brutal-hover mt-8 inline-flex items-center gap-2 bg-accent px-7 py-4 font-mono text-sm font-bold tracking-widest text-accent-ink"
+              className="brutal brutal-hover glow-pulse mt-8 inline-flex items-center gap-2 bg-accent px-7 py-4 font-mono text-sm font-bold tracking-widest text-accent-ink"
             >
               START A CONVERSATION <ArrowRight size={16} />
             </Link>
