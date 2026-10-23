@@ -116,6 +116,23 @@ PROJECTS = [
         "demo_url": None,
         "repo_url": None,
     },
+    {
+        "title": "Dreamland Arcade Management System",
+        "summary": "Full-stack management platform for two arcade branches — role-based dashboards, POS terminal, scheduling and inventory, with branch data isolation enforced by PostgreSQL Row-Level Security.",
+        "problem": "Two branches (Siniloan and Infanta) ran employees, schedules, POS sales, inventory and payroll on paper and disconnected spreadsheets — with no privacy boundary between branches and no single login for staff.",
+        "approach": "FastAPI + SQLAlchemy backend over 28 PostgreSQL tables, with Row-Level Security on 20 of them: every request sets app.current_branch_id and app.current_user_role session variables, so branch isolation is enforced by the database itself rather than application checks. PIN + JWT auth with bcrypt hashing, a five-attempt login throttle and per-IP rate limits behind a six-middleware security stack. 22 route modules cover attendance with an auto-reshuffle scheduling algorithm, POS with loyalty cards and cash tracking sheets, inventory, payslips, proposals, announcements and Gmail SMTP/IMAP messaging; a hash-routed vanilla-JS SPA with 30+ page renderers serves Owner, Admin and Employee roles under a neon Orbitron arcade theme, with Chart.js revenue analytics on the owner dashboard.",
+        "results": [
+            {"label": "Branches isolated at DB level", "value": "2"},
+            {"label": "Tables protected by RLS", "value": "20"},
+            {"label": "Role-based surfaces", "value": "4"},
+        ],
+        "tech_stack": ["Python", "FastAPI", "PostgreSQL", "SQLAlchemy", "JavaScript", "Chart.js"],
+        "featured": False,
+        "rating": 5,
+        "tags": ["fastapi", "postgresql", "security", "pos"],
+        "demo_url": None,
+        "repo_url": "https://github.com/rjvtayam/dreamland_arcade_project",
+    },
 ]
 
 POSTS = [
@@ -312,34 +329,40 @@ async def seed(refresh: bool = False) -> None:
             await db.commit()
             print("[seed] refresh: cleared projects, skills, experiences (kept posts, testimonials, messages)")
 
-        if (await db.execute(select(Project))).first() is None:
-            for raw in PROJECTS:
-                tag_objs = []
-                for name in raw["tags"]:
-                    result = await db.execute(select(Tag).where(Tag.name == name))
-                    tag = result.scalar_one_or_none()
-                    if tag is None:
-                        tag = Tag(name=name)
-                        db.add(tag)
-                        await db.flush()
-                    tag_objs.append(tag)
-                project = Project(
-                    slug=_slugify(raw["title"]),
-                    title=raw["title"],
-                    summary=raw["summary"],
-                    problem=raw["problem"],
-                    approach=raw["approach"],
-                    results=raw["results"],
-                    tech_stack=raw["tech_stack"],
-                    featured=raw["featured"],
-                    rating=raw.get("rating"),
-                    repo_url=raw.get("repo_url"),
-                    demo_url=raw.get("demo_url"),
-                    status="published",
-                    tags=tag_objs,
-                )
-                db.add(project)
-            print(f"[seed] {len(PROJECTS)} projects")
+        seeded_slugs = set((await db.execute(select(Project.slug))).scalars().all())
+        inserted = 0
+        for raw in PROJECTS:
+            slug = _slugify(raw["title"])
+            if slug in seeded_slugs:
+                continue
+            tag_objs = []
+            for name in raw["tags"]:
+                result = await db.execute(select(Tag).where(Tag.name == name))
+                tag = result.scalar_one_or_none()
+                if tag is None:
+                    tag = Tag(name=name)
+                    db.add(tag)
+                    await db.flush()
+                tag_objs.append(tag)
+            project = Project(
+                slug=slug,
+                title=raw["title"],
+                summary=raw["summary"],
+                problem=raw["problem"],
+                approach=raw["approach"],
+                results=raw["results"],
+                tech_stack=raw["tech_stack"],
+                featured=raw["featured"],
+                rating=raw.get("rating"),
+                repo_url=raw.get("repo_url"),
+                demo_url=raw.get("demo_url"),
+                status="published",
+                tags=tag_objs,
+            )
+            db.add(project)
+            inserted += 1
+        if inserted:
+            print(f"[seed] inserted {inserted} new projects ({len(seeded_slugs)} already present)")
 
         if (await db.execute(select(Post))).first() is None:
             for raw in POSTS:
