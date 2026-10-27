@@ -1,8 +1,9 @@
-import { ArrowUpRight, Play } from 'lucide-react'
+import { ArrowUpRight, FileText, Play } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Reveal from './Reveal'
 import StarRating from './StarRating'
 import { techColor } from '../lib/techColors'
+import { usePosts } from '../lib/hooks'
 import type { Project } from '../lib/types'
 
 const NEON = ['var(--neon-1)', 'var(--neon-2)', 'var(--neon-3)', 'var(--neon-4)', 'var(--neon-5)', 'var(--neon-6)']
@@ -16,6 +17,9 @@ type Props = {
 export default function ProjectCard({ project, index, featured = false }: Props) {
   const color = NEON[index % NEON.length]
   const wonAward = project.tags.some((t) => t.name.toLowerCase() === 'award')
+  // Shared SWR cache — one fetch serves every card on the page.
+  const { data: posts = [] } = usePosts()
+  const noteCount = posts.filter((p) => p.project_slug === project.slug).length
 
   const onMove = (e: React.MouseEvent<HTMLElement>) => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -32,9 +36,8 @@ export default function ProjectCard({ project, index, featured = false }: Props)
 
   return (
     <Reveal delay={index * 0.07}>
-      <Link
-        to={`/projects/${project.slug}`}
-        className={`neon-card group flex h-full flex-col p-6 ${featured ? 'md:p-8' : ''}`}
+      <article
+        className={`neon-card group relative flex h-full flex-col p-6 ${featured ? 'md:p-8' : ''}`}
         style={{ ['--card-neon' as string]: color }}
         onMouseMove={onMove}
         onMouseLeave={onLeave}
@@ -83,7 +86,12 @@ export default function ProjectCard({ project, index, featured = false }: Props)
             featured ? 'text-3xl md:text-4xl' : 'text-2xl'
           }`}
         >
-          {project.title}
+          {/* Stretched link: the whole card opens the case study, while the
+              notes link below keeps its own click target above the overlay. */}
+          <Link to={`/projects/${project.slug}`}>
+            {project.title}
+            <span className="absolute inset-0" aria-hidden="true" />
+          </Link>
         </h3>
         <p className={`mt-3 text-sm leading-relaxed text-mute ${featured ? '' : 'line-clamp-3'}`}>
           {project.summary}
@@ -128,8 +136,19 @@ export default function ProjectCard({ project, index, featured = false }: Props)
               #{project.tags.map((t) => t.name).join('  #')}
             </p>
           )}
+          {noteCount > 0 && (
+            <Link
+              to={`/writing?project=${project.slug}`}
+              className="relative z-10 mt-4 inline-flex w-fit items-center gap-1.5 font-mono text-[0.65rem] font-bold tracking-widest underline-offset-4 transition-colors hover:underline"
+              style={{ color }}
+            >
+              <FileText size={11} aria-hidden="true" />
+              VIEW {noteCount} {noteCount === 1 ? 'NOTE' : 'NOTES'}
+              <ArrowUpRight size={11} aria-hidden="true" />
+            </Link>
+          )}
         </div>
-      </Link>
+      </article>
     </Reveal>
   )
 }

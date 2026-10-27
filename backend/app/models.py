@@ -106,6 +106,10 @@ class Post(Base):
     excerpt: Mapped[str] = mapped_column(Text, default="")
     content_md: Mapped[str] = mapped_column(Text, default="")
     tags: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
+    # Project anchor: null = general note; otherwise projects.slug.
+    project_slug: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
+    # Difficulty arc: beginner | intermediate | advanced (null = unclassified).
+    level: Mapped[str | None] = mapped_column(String(16), nullable=True)
     status: Mapped[str] = mapped_column(String(16), default="published", index=True)
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

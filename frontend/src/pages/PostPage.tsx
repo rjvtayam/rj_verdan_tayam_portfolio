@@ -1,16 +1,18 @@
 import { useEffect, useRef } from 'react'
-import { ArrowLeft, ArrowRight, Clock } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Clock, FolderOpen } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Reveal from '../components/Reveal'
 import { formatDate, readingTime } from '../lib/format'
-import { usePost, usePosts } from '../lib/hooks'
+import { usePost, usePosts, useProjects } from '../lib/hooks'
+import { levelMeta } from '../lib/postLevels'
 
 export default function PostPage() {
   const { slug } = useParams()
   const { data: post, isLoading, error } = usePost(slug)
   const { data: all = [] } = usePosts()
+  const { data: projects = [] } = useProjects()
   const barRef = useRef<HTMLSpanElement>(null)
 
   // Reading-progress bar: transform-only (GPU-friendly), rAF-throttled.
@@ -65,6 +67,8 @@ export default function PostPage() {
 
   const index = all.findIndex((p) => p.slug === post.slug)
   const next = all.length > 1 && index >= 0 ? all[(index + 1) % all.length] : null
+  const lvl = levelMeta(post.level)
+  const LvlIcon = lvl?.icon
 
   return (
     <article>
@@ -86,7 +90,30 @@ export default function PostPage() {
             </Link>
           </Reveal>
           <Reveal delay={0.05}>
-            <p className="label mt-8 mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
+            {(post.project_slug || lvl) && (
+              <div className="mt-8 mb-4 flex flex-wrap items-center gap-2">
+                {post.project_slug && (
+                  <Link
+                    to={`/projects/${post.project_slug}`}
+                    className="brutal-flat inline-flex items-center gap-1.5 bg-bg px-2.5 py-1 font-mono text-[0.65rem] tracking-widest text-mute uppercase transition-colors hover:border-accent hover:text-accent"
+                  >
+                    <FolderOpen size={11} aria-hidden="true" />
+                    {projects.find((p) => p.slug === post.project_slug)?.title ?? post.project_slug}
+                  </Link>
+                )}
+                {lvl && LvlIcon && (
+                  <span
+                    className="brutal-flat inline-flex items-center gap-1.5 bg-bg px-2.5 py-1 font-mono text-[0.65rem] tracking-widest uppercase"
+                    style={{ color: lvl.color }}
+                    title={`${lvl.label} note`}
+                  >
+                    <LvlIcon size={11} aria-hidden="true" />
+                    {lvl.label}
+                  </span>
+                )}
+              </div>
+            )}
+            <p className="label mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
               <span>/// {formatDate(post.published_at ?? post.created_at)}</span>
               <span className="inline-flex items-center gap-1.5 text-mute">
                 <Clock size={12} aria-hidden="true" />

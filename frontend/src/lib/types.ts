@@ -32,6 +32,8 @@ export interface Post {
   excerpt: string
   content_md: string
   tags: string[]
+  project_slug: string | null
+  level: string | null
   status: string
   published_at: string | null
   created_at: string

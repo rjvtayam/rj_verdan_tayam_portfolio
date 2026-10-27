@@ -107,6 +107,8 @@ class PostBase(BaseModel):
     excerpt: str = ""
     content_md: str = ""
     tags: list[str] = []
+    project_slug: str | None = Field(default=None, max_length=255)
+    level: str | None = Field(default=None, max_length=16)
     status: str = "published"
     published_at: datetime | None = None
 
@@ -121,6 +123,8 @@ class PostUpdate(BaseModel):
     excerpt: str | None = None
     content_md: str | None = None
     tags: list[str] | None = None
+    project_slug: str | None = None
+    level: str | None = None
     status: str | None = None
     published_at: datetime | None = None
 
@@ -134,6 +138,8 @@ class PostOut(BaseModel):
     excerpt: str
     content_md: str
     tags: list[str]
+    project_slug: str | None = None
+    level: str | None = None
     status: str
     published_at: datetime | None
     created_at: datetime

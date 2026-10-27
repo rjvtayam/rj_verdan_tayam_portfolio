@@ -175,6 +175,8 @@ alembic upgrade head
 
 `docker compose up` starts a reviewer-ready stack in under a minute, and CI can run backend tests and a frontend build from the same pipeline.
 """,
+        "project_slug": None,
+        "level": "intermediate",
         "tags": ["fastapi", "architecture"],
     },
     {
@@ -197,6 +199,8 @@ CREATE INDEX idx_projects_status_created
 
 `EXPLAIN (ANALYZE, BUFFERS)` before and after. If a plan doesn't touch the index, delete it — every index is a write tax.
 """,
+        "project_slug": None,
+        "level": "advanced",
         "tags": ["postgresql", "performance"],
     },
     {
@@ -223,6 +227,8 @@ Mutations invalidate the key, every subscriber re-renders with fresh data, and t
 
 Fewer bugs, less boilerplate, and optimistic updates that roll back cleanly when the API says no.
 """,
+        "project_slug": None,
+        "level": "intermediate",
         "tags": ["react", "typescript"],
     },
     {
@@ -244,6 +250,8 @@ Headlines scale continuously instead of jumping at arbitrary widths.
 
 I test every page at 360 / 390 / 768 / 1024 / 1440 px and assert no horizontal scroll in an automated viewport matrix. If the art direction breaks the layout at 360px, the art direction loses.
 """,
+        "project_slug": None,
+        "level": "beginner",
         "tags": ["css", "responsive"],
     },
     {
@@ -287,6 +295,8 @@ The isolation no longer depends on developer discipline. A forgotten `WHERE` cla
 
 RLS adds a planner filter to every protected query. Across 20 tables that meant indexing `branch_id` everywhere and re-checking plans with `EXPLAIN (ANALYZE, BUFFERS)` to confirm the policies did not turn a index scan into a sequential one. I also wrote a test that logs in as a branch-A user and asserts a branch-B row comes back empty — the policy is only trustworthy once it has failed a query you expected to succeed. The trade was worth it: a privacy boundary belongs in the layer least likely to make a mistake.
 """,
+        "project_slug": "dreamland-arcade-management-system",
+        "level": "advanced",
         "tags": ["postgresql", "security"],
     },
     {
@@ -331,6 +341,8 @@ The two limits catch different adversaries: the per-account throttle stops a tar
 
 Each layer does one thing. When a bug showed up in role resolution, I patched one middleware without touching auth, and the other five kept their guarantees. Small, composable guards are far easier to reason about — and to test — than one large `authenticate()` that does everything, and they fail in ways you can predict.
 """,
+        "project_slug": "dreamland-arcade-management-system",
+        "level": "advanced",
         "tags": ["fastapi", "security"],
     },
     {
@@ -367,6 +379,8 @@ The `min(..., key=hours_this_week)` line is the whole policy: the shift goes to 
 
 The algorithm is intentionally conservative. It respects maximum-hours rules, never reassigns across branches — the same row-level security that isolates sales also isolates staff — and returns `None` when nobody is eligible rather than forcing a bad fit. That `None` is important: an unfillable shift escalates to the owner instead of quietly overworking someone. Every change writes an audit row, so the owner can see exactly why a schedule moved and override it when the algorithm lacks context a human has.
 """,
+        "project_slug": "dreamland-arcade-management-system",
+        "level": "intermediate",
         "tags": ["python", "architecture"],
     },
     {
@@ -403,6 +417,8 @@ Super Admin, Admin, Principal, Teacher, Student, Parent and Registrar all read t
 
 Before, a single grade change meant updating a spreadsheet, re-deriving the average, and reprinting a card — three chances to drift. Now a correction flows from the teacher's entry straight to the regenerated report card. The engineering did not make grading smarter; it made the policy explicit and the source singular, which is usually what school systems actually need.
 """,
+        "project_slug": "jnhs-portal",
+        "level": "advanced",
         "tags": ["postgresql", "education"],
     },
     {
@@ -438,6 +454,8 @@ Municipal connections are not always stable, so the client reconnects and re-fet
 
 Because the data is already normalized, government PDFs generate straight from form data instead of being retyped into a template. The document and the database cannot disagree, because there is only one of them.
 """,
+        "project_slug": "farm-connect",
+        "level": "advanced",
         "tags": ["flask", "realtime"],
     },
     {
@@ -478,6 +496,8 @@ Locking the row and updating stock atomically means concurrent releases cannot o
 
 Most people touch this portal a few times a year, usually under time pressure. That drove every choice: one column of content, plain status words instead of internal codes, and the current state shown before any history. When a system is used rarely, it has to explain itself on first contact — the goal was not a clever interface, but one nobody needed training to use.
 """,
+        "project_slug": "lspu-bao-portal",
+        "level": "intermediate",
         "tags": ["ux", "product"],
     },
     {
@@ -506,6 +526,8 @@ The system prompt restricts the helper to course scope and asks it to cite the r
 
 Every interaction is logged against the student's skill record, so a pattern of questions on one topic surfaces as a skill gap the instructor can address. The helper is not a novelty chat box; it is another signal feeding the progress view, and it turns repeated confusion into data a teacher can act on.
 """,
+        "project_slug": "enlighten-ed",
+        "level": "intermediate",
         "tags": ["ai", "education"],
     },
     {
@@ -533,7 +555,543 @@ On a bootcamp deadline the temptation is to inline everything and fix it later. 
 
 A small project is the cheapest place to build good habits. The same discipline — clear boundaries, one source of truth, honest errors — scales to the larger systems I build now, from municipal portals to a two-branch arcade platform. The award was for a capstone, but the lesson was for everything after it.
 """,
+        "project_slug": "zuitt-codecamp-web-app",
+        "level": "intermediate",
         "tags": ["python", "mysql"],
+    },
+    {
+        "title": "Giving every student one stable key: LRN-based records",
+        "excerpt": "Why the JNHS Portal's student table keys on the LRN instead of a name or a row number.",
+        "content_md": """## The first mistake in a school schema
+
+Every school database starts the same way: a `students` table with a name column, and code that finds a learner with `WHERE name = ?`. It works in a demo and breaks the first day two students share a name — in a school of hundreds that is not a question of if, but when.
+
+## The LRN is already the key
+
+DepEd issues every learner a Learner Reference Number: a stable, school-independent identifier the portal can lean on.
+
+```sql
+CREATE TABLE students (
+    id   bigserial PRIMARY KEY,
+    lrn  varchar(15) UNIQUE NOT NULL,
+    ...
+);
+```
+
+`id` stays as the internal join key — boring, reliable, never shown to users — while `lrn` is the unique business key that enrollment, grades and report cards hang off. A duplicate registration then collides on `UNIQUE` instead of quietly creating a second record for the same child.
+
+## What it unlocked
+
+Because enrollment, attendance and quarterly grades all reference one student row, SF9 and SF10 generate from the same record the teacher grades into. There is no reconciliation step, because there is nothing to reconcile.
+
+## The lesson
+
+Find the identifier your domain already hands you and put a `UNIQUE` constraint on it before the first duplicate arrives. Retrofitting that constraint later means deduplicating real records — someone's job, someone's mistake.
+""",
+        "project_slug": "jnhs-portal",
+        "level": "beginner",
+        "tags": ["postgresql", "education"],
+    },
+    {
+        "title": "Designing daily attendance that survives a school day",
+        "excerpt": "Half-days, re-marks and bulk entry — the ledger shape that keeps the JNHS attendance records honest.",
+        "content_md": """## Attendance is a ledger, not a flag
+
+The first instinct is a boolean per student: `present = true`. It holds up until second period, when a student marked present is later marked absent — the column keeps only the last answer and the morning disappears. The JNHS Portal treats attendance as one row per student per day:
+
+```sql
+CREATE TABLE attendance (
+    student_id  bigint REFERENCES students(id),
+    school_date date NOT NULL,
+    status      varchar(8) NOT NULL,  -- present / absent / late
+    recorded_by bigint REFERENCES users(id),
+    PRIMARY KEY (student_id, school_date)
+);
+```
+
+## One row per day, on purpose
+
+The composite primary key makes a second entry for the same student and date impossible — a double-click or a laggy connection becomes a constraint violation instead of a corrupted history. Re-marking a student is an `UPDATE` of exactly one row, so "latest value" is unambiguous, and `recorded_by` keeps the trail of who wrote it.
+
+## Bulk entry for teachers
+
+Teachers mark a whole section — often forty learners — from one screen, so the write path batches the saves and lets the primary key absorb duplicates rather than failing the whole submission. The roster comes from section-based enrollment, so the list on screen is already scoped to that teacher's class; marking another section's students is not a misclick waiting to happen.
+
+## Why it mattered
+
+Daily attendance feeds the school's records and, downstream, the quarterly report cards. A ledger keyed on (student, date) is boring in the best way: it is impossible to store an attendance history that contradicts itself.
+""",
+        "project_slug": "jnhs-portal",
+        "level": "intermediate",
+        "tags": ["postgresql", "education"],
+    },
+    {
+        "title": "From paper RSBSA forms to a first database design",
+        "excerpt": "The first tables behind Farm Connect — turning the municipal RSBSA form into rows without losing what the paper already knew.",
+        "content_md": """## Start with the form
+
+Farm Connect replaced paper RSBSA registration for the municipal agriculture office. The fastest route to a correct first schema was to model the form itself before designing anything clever: every field an encoder fills in becomes a column, and every signature block becomes a relationship.
+
+## The two entities that matter
+
+Nearly everything on an RSBSA form belongs to either a farmer or an application:
+
+```sql
+CREATE TABLE farmers (
+    id        bigserial PRIMARY KEY,
+    rsbsa_no  varchar(20) UNIQUE,
+    ...
+);
+
+CREATE TABLE applications (
+    id         bigserial PRIMARY KEY,
+    farmer_id  bigint NOT NULL REFERENCES farmers(id),
+    status     varchar(16) NOT NULL DEFAULT 'pending',
+    created_at timestamptz NOT NULL DEFAULT now()
+);
+```
+
+`rsbsa_no UNIQUE` mirrors what the paper form already guaranteed — one registration per farmer — so the database rejects a duplicate exactly the way a careful encoder would.
+
+## Status is a column, not a folder
+
+On paper, an application's state was its physical location: inbox, pending, approved. In the database it is a `status` column on the row, which is what later makes dashboards, filters and PDF reports a query instead of a search.
+
+## What I deliberately left out
+
+No approval history, no wizard, no geo-encoding — the first version recorded what the paper recorded, correctly. Every feature added after stood on tables that already existed and already made sense. Starting boring is what let the interesting parts arrive later without a rebuild.
+""",
+        "project_slug": "farm-connect",
+        "level": "beginner",
+        "tags": ["postgresql", "government"],
+    },
+    {
+        "title": "Four panels, one permission model: role-based access in Flask",
+        "excerpt": "Encoder, Verifier, MAO and Admin share one Flask app — how Farm Connect keeps their permissions from bleeding together.",
+        "content_md": """## One app, four jobs
+
+Farm Connect serves four dedicated panels — Encoder, Verifier, MAO and Admin — from a single Flask application. The tempting shape is four copies of every route with a role check sprinkled inside each view. The cleaner shape is one gate in front and a decorator that declares who may enter:
+
+```python
+def role_required(*roles):
+    def decorator(view):
+        @functools.wraps(view)
+        def wrapper(*args, **kwargs):
+            if current_user.role not in roles:
+                abort(403)
+            return view(*args, **kwargs)
+        return wrapper
+    return decorator
+
+@app.get("/verifier/applications")
+@role_required("verifier")
+def verifier_queue():
+    ...
+```
+
+## Permissions you can read
+
+Each route declares its roles in the decorator, and the check runs before the view does any work. Adding a fifth panel later means adding decorators — not auditing every inline `if` scattered through handlers — and a route with no decorator is obvious in review.
+
+## The rest of the envelope
+
+Role routing is only the outer layer. Farm Connect pairs it with CSRF protection on state-changing forms and encrypted authentication, so a forged cross-site post with no session dies at the door alongside a logged-in user with the wrong role.
+
+## The rule I kept
+
+A verifier's panel never renders data only the MAO should act on. Hiding a button is not authorization: the route itself refuses, and the templates only ever render what the gate already let through.
+""",
+        "project_slug": "farm-connect",
+        "level": "intermediate",
+        "tags": ["flask", "security"],
+    },
+    {
+        "title": "Starting a courseware schema: materials, students, skills",
+        "excerpt": "The first draft of Enlighten ED's data model — three tables that keep course materials, enrollment and skill records honest.",
+        "content_md": """## Three nouns, three tables
+
+Enlighten ED is a courseware platform with per-student skill tracking. The first schema draft simply named the nouns in that sentence and gave each a table before any feature existed — courses, materials, students — with the relationship between them made explicit:
+
+```sql
+CREATE TABLE materials (
+    id        bigserial PRIMARY KEY,
+    course_id bigint NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    title     text NOT NULL,
+    ...
+);
+
+CREATE TABLE enrollments (
+    student_id bigint REFERENCES students(id),
+    course_id  bigint REFERENCES courses(id),
+    PRIMARY KEY (student_id, course_id)
+);
+```
+
+## The junction table is the design
+
+`enrollments` is where first drafts go wrong: students and courses are many-to-many, and any schema that puts `course_id` straight on the student row can only ever hold one course per learner. The composite key makes the relationship a fact in the database, and "is this student enrolled?" becomes a primary-key lookup.
+
+## References do the housekeeping
+
+`ON DELETE CASCADE` on materials means removing a course does not strand orphaned files, while foreign keys on students protect the rows that grades and skill records already point at. The constraints encode the school's rules once, in the layer that never forgets and never has a bad day.
+
+## Why this was enough
+
+Materials, enrollment and skill records covered the prototype's entire workflow. A schema that names the domain's nouns honestly turned the AI helper and the progress views into additions on top — not excavations through a model that never fit.
+""",
+        "project_slug": "enlighten-ed",
+        "level": "beginner",
+        "tags": ["postgresql", "education"],
+    },
+    {
+        "title": "Designing student records that keep personal data separate",
+        "excerpt": "How Enlighten ED's careful data model separates identity from performance so a progress query never drags personal data along.",
+        "content_md": """## The risk in a student database
+
+A courseware system holds two very different kinds of data: who a student is — names, contact details, account identifiers — and what they have done: grades, skill records, logged interactions. Query the second kind for analytics and it is remarkably easy to drag the first kind along with it.
+
+## Split identity from performance
+
+The design keeps personal fields on the student record and everything academic pointing at it by id:
+
+```sql
+CREATE TABLE student_profiles (
+    student_id bigint PRIMARY KEY REFERENCES students(id),
+    full_name  text NOT NULL,
+    ...
+);
+
+CREATE TABLE skill_records (
+    id         bigserial PRIMARY KEY,
+    student_id bigint NOT NULL REFERENCES students(id) ON DELETE RESTRICT,
+    skill      text NOT NULL,
+    level      smallint NOT NULL CHECK (level BETWEEN 0 AND 100)
+);
+```
+
+A progress report selects from `skill_records` — names never enter the result set unless the view is specifically about a person.
+
+## Integrity beats convention
+
+`ON DELETE RESTRICT` means a student with academic history cannot be erased by accident; cleaning up personal details is a deliberate act on the profile row, not a cascade that quietly removes records the school still needs. The `CHECK` keeps skill levels honest at write time rather than at report time, when a wrong number has already been shown to someone.
+
+## The payoff
+
+The prototype's privacy story is not a layer of application checks — it is the shape of the tables. When identity and performance live in separate tables joined by a deliberate foreign key, the careless query has to go out of its way to leak, and the careful one is simply the default.
+""",
+        "project_slug": "enlighten-ed",
+        "level": "advanced",
+        "tags": ["postgresql", "education"],
+    },
+    {
+        "title": "Talking to MySQL from Python: cursors, connections and safe queries",
+        "excerpt": "The capstone's data-layer basics — a connection that always closes, and parameterized queries everywhere.",
+        "content_md": """## Where the capstone started
+
+Zuitt's capstone asked for a Python backend wired to MySQL behind a responsive interface, on a bootcamp clock. My part was the data layer, and its first working version taught the two lessons I still apply everywhere: a connection that is impossible to leak, and queries that never touch string concatenation.
+
+## A cursor that always closes
+
+The naive version opens a connection per request and forgets to close anything when an exception fires — until the pool empties in a demo. The context manager makes the mistake unrepresentable:
+
+```python
+with connection.cursor() as cur:
+    cur.execute(
+        "SELECT id, title FROM products WHERE category = %s",
+        (category,),
+    )
+    rows = cur.fetchall()
+```
+
+## Parameters, not f-strings
+
+The `%s` placeholder is the whole security story at this layer. Interpolating user input into SQL to save a line hands the database to anyone who can type a quote mark; parameterized queries let the driver handle escaping, so the statement stays a statement and the data stays data.
+
+## Compound interest on habits
+
+Neither line is clever. Both are the kind of reflex that has to exist by the time a codebase is judged on implementation craft — which, in a capstone graded exactly on that, it had to be.
+""",
+        "project_slug": "zuitt-codecamp-web-app",
+        "level": "beginner",
+        "tags": ["python", "mysql"],
+    },
+    {
+        "title": "One data-access module: the pattern behind a clean capstone",
+        "excerpt": "Why every query in the Zuitt capstone lived in one module — and what that bought the judges reading the code.",
+        "content_md": """## The shape that won the read
+
+The Zuitt capstone took the 2024 Star Web Development & UX/UI Design Award, and the judges were reading code quality, not screenshots. The structural choice that carried the most weight was the boring one: every SQL statement lived in a single data-access module, and routes never touched a cursor directly.
+
+## What the module looks like
+
+One file, explicit functions, one responsibility each:
+
+```python
+def get_order(order_id: int) -> Order | None:
+    with connection.cursor() as cur:
+        cur.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
+        row = cur.fetchone()
+    return Order.from_row(row) if row else None
+```
+
+Routes call `get_order(...)`. They do not know the table name, the column list, or the driver's fetch semantics — that is the module's business, and only its business.
+
+## Why it kept winning
+
+- **A query fix lands in one place.** When something needed tuning, there was exactly one call site to find.
+- **Rows become domain objects at one boundary.** `Order.from_row` is the only spot that knows cursors return tuples, so the rest of the app reads like the domain.
+- **Errors normalize once.** Not-found and connection failures translate to consistent results at the module edge, instead of every handler inventing its own error shape — which the frontend then had to parse in one place anyway.
+
+## The general lesson
+
+This is the pattern I still start from on larger systems. The route layer stays thin, the data layer stays honest, and the distance between them is a function signature — exactly the distance a reviewer needs to judge an implementation in one pass.
+""",
+        "project_slug": "zuitt-codecamp-web-app",
+        "level": "advanced",
+        "tags": ["python", "architecture"],
+    },
+    {
+        "title": "Types from the API to the component: strict TypeScript on the client",
+        "excerpt": "How this portfolio's strict TypeScript turns an API contract into compile-time feedback instead of 2 a.m. runtime surprises.",
+        "content_md": """## The failure mode strict mode removes
+
+A React app without types fails late: `post.tags.map is not a function`, because the response was never what the component assumed. This portfolio runs TypeScript in strict mode, so that class of bug becomes a red squiggle at save time instead of a stack trace in production.
+
+## One interface, stated once
+
+The API contract lives in a single file and every layer reads from it:
+
+```ts
+export interface Post {
+  id: number
+  slug: string
+  title: string
+  excerpt: string
+  content_md: string
+  tags: string[]
+  project_slug: string | null
+  level: string | null
+  status: string
+  published_at: string | null
+  created_at: string
+}
+```
+
+Components import `Post`; they never restate its shape. When the backend gained `project_slug` and `level` for the writing archive, exactly one interface changed and the compiler listed every place that assumed otherwise.
+
+## The rule that makes it hold
+
+Nothing crosses the API boundary as `any`. The fetch wrapper returns typed results, so a 404 or a network error is handled before a component ever sees it. Strict mode is only as strong as its weakest escape hatch, and this codebase keeps the hatches locked.
+
+## The payoff
+
+Refactors become mechanical: rename a field, run the build, fix the lines the compiler lists. It is not thrilling — it is the absence of a whole category of bug, every day.
+""",
+        "project_slug": "rjvt-portfolio-platform",
+        "level": "beginner",
+        "tags": ["react", "typescript"],
+    },
+    {
+        "title": "Visitor voting that the database refuses to duplicate",
+        "excerpt": "Anonymous per-visitor ratings on this portfolio — the read-check-write path, and the unique constraint standing behind it.",
+        "content_md": """## The requirement
+
+This portfolio lets visitors rate projects without signing in. Anonymous voting sounds trivial until one visitor clicks twice — or fires the endpoint from a script — and the average drifts toward whoever refreshes hardest.
+
+## The write path
+
+The endpoint keeps exactly one vote per (project, visitor):
+
+```python
+existing = (
+    await db.execute(
+        select(ProjectVote).where(
+            ProjectVote.project_id == project_id,
+            ProjectVote.visitor_id == body.visitor_id,
+        )
+    )
+).scalar_one_or_none()
+
+if existing is None:
+    db.add(ProjectVote(project_id=project_id,
+                       visitor_id=body.visitor_id, value=body.value))
+else:
+    existing.value = body.value
+```
+
+A first vote inserts; any later click updates the value. The average reflects visitors, not clicks.
+
+## The constraint behind the check
+
+The check gives correct behavior; the guarantee behind it lives in the schema:
+
+```python
+__table_args__ = (
+    UniqueConstraint("project_id", "visitor_id", name="uq_project_visitor"),
+)
+```
+
+Two racing requests can both pass the check, but only one insert can commit — the loser gets an integrity error instead of a second row. Behavior in the service, correctness in the database: each layer owns what it is best at.
+
+## Why both layers
+
+Without the check, laggy visitors see errors they did nothing wrong to cause. Without the constraint, a race quietly corrupts the average. Having neither is how a five-star portfolio ends up reporting 5.7.
+""",
+        "project_slug": "rjvt-portfolio-platform",
+        "level": "intermediate",
+        "tags": ["postgresql", "fastapi"],
+    },
+    {
+        "title": "Rate-limiting the public API without breaking the demo",
+        "excerpt": "The small fixed-window helper guarding this portfolio's public endpoints — where it sits, why it is per-route, and its honest limits.",
+        "content_md": """## The endpoints that need a bouncer
+
+Contact forms and testimonial submissions are public writes: useful for visitors, attractive to bots. This portfolio guards them with a small per-route helper rather than a global middleware:
+
+```python
+def rate_limit(request, bucket, limit, window_seconds=3600):
+    ip = request.client.host if request.client else "unknown"
+    now = time.monotonic()
+    cutoff = now - window_seconds
+    hits = _hits[bucket][ip]
+    hits[:] = [t for t in hits if t > cutoff]
+    if len(hits) >= limit:
+        raise HTTPException(429, "Too many requests")
+    hits.append(now)
+```
+
+## Reading the helper
+
+It is a fixed-window counter held in memory: timestamps per (bucket, IP), pruned to the window on every call, compared before appending. `time.monotonic()` keeps it immune to clock adjustments, and the 429 answers before the route does any work — no database write, no email send, no thumbnail processed.
+
+## Why per-route instead of global
+
+A global limit punishes browsing because of one noisy form. Declaring the budget at the call site —
+
+```python
+rate_limit(request, "messages", settings.RATE_LIMIT_MESSAGES_PER_HOUR)
+```
+
+— makes each endpoint's policy readable exactly where it is enforced, and leaves read-heavy routes untouched.
+
+## The honest limits
+
+State lives in the process, so the window resets on restart and does not transfer across workers. That is correct for this deployment and a reason to move to a shared store the day it scales out. Rate limiting is the rare feature where knowing precisely how your solution fails is part of knowing that it works.
+""",
+        "project_slug": "rjvt-portfolio-platform",
+        "level": "advanced",
+        "tags": ["fastapi", "security"],
+    },
+    {
+        "title": "Catalog first: the simplest useful slice of a portal",
+        "excerpt": "Why the LSPU-BAO portal started as a read-only catalog — and what leaving features out taught me about scope.",
+        "content_md": """## The hardest part of a portal is what you leave out
+
+LSPU-BAO's supplies office needed a portal, and the obvious version wanted everything at once: accounts, carts, approvals, notifications. The version that shipped started smaller — a catalog students and faculty could actually browse.
+
+## Slice one: read-only rows
+
+The first slice was a product list rendered straight from the database:
+
+```python
+@app.get("/catalog")
+def catalog(db: Session = Depends(get_db)):
+    items = db.execute(
+        select(Product)
+        .where(Product.is_available)
+        .order_by(Product.name)
+    ).scalars().all()
+    return render("catalog.html", items=items)
+```
+
+No session, no write path — just honest data on a screen. It put the real questions in front of the office immediately: what counts as available, which fields students actually look for, and how stock is phrased so nobody requests an empty shelf.
+
+## What the slice proved
+
+Once the catalog was right, order placement had a list worth ordering from and a stock number worth respecting. Every later state — pending, approved, ready, released — hangs off rows that already existed and already made sense to the people using them.
+
+## The lesson
+
+A read-only screen is the cheapest possible conversation with a user. Shipping it first turns scope debates into reactions to something real, and it is the cut I still recommend for any internal portal.
+""",
+        "project_slug": "lspu-bao-portal",
+        "level": "beginner",
+        "tags": ["ux", "product"],
+    },
+    {
+        "title": "Two trust levels, one service: public portal vs staff panel",
+        "excerpt": "How the LSPU-BAO portal keeps public browsing and staff fulfillment behind one Python service with two explicit trust levels.",
+        "content_md": """## One service, two audiences
+
+The LSPU-BAO portal has a public side — students and faculty browsing a catalog and tracking their own requests — and a staff side that edits inventory and releases orders. Both live in one Python service, which makes the boundary between them a design decision rather than a deployment detail.
+
+## The public surface assumes nothing
+
+Public routes expose only what a stranger may see: catalog rows, and the status of a request scoped to the person who made it. There is no "list every order" endpoint for the front end to accidentally call, and no public route that can move stock — releasing an order is structurally impossible from this side, not merely hidden behind an unclicked button.
+
+```python
+@app.get("/orders/{order_id}")
+def order_status(order_id: int, viewer: Viewer = Depends(current_viewer)):
+    order = get_order(order_id)
+    if order is None or not viewer.may_view(order):
+        raise HTTPException(404)   # missing and forbidden look identical
+```
+
+The 404-forbidden trick matters: an attacker probing ids learns nothing about which orders exist.
+
+## The staff surface requires identity
+
+Fulfillment routes gate on an authenticated staff session and the role behind the panel, then run the transaction that changes state and stock together. The service function that releases an order is never reachable without that gate — the same code, a different door.
+
+## Why the split is worth stating
+
+Portals like this fail in one of two directions: everything public "for convenience," or staff routes mirrored one-to-one onto public ones with checks sprinkled inside. Naming the two trust levels first makes every new route answer one question before it is written — which side is this on, and what does that side assume about its caller?
+""",
+        "project_slug": "lspu-bao-portal",
+        "level": "advanced",
+        "tags": ["python", "security"],
+    },
+    {
+        "title": "From attendance sheets to payslips: the payroll data model",
+        "excerpt": "The first tables behind Dreamland Arcade — turning daily attendance into payslips a branch owner can still re-check months later.",
+        "content_md": """## Paper in, paper out
+
+Before dashboards and POS analytics, Dreamland Arcade's payroll was attendance sheets and a calculator. The first useful build simply made that pipeline queryable: hours in, pay out, with every step stored — because a payslip questioned three months later has to explain itself.
+
+## Three tables, one direction
+
+```sql
+CREATE TABLE attendance (
+    id          bigserial PRIMARY KEY,
+    employee_id bigint NOT NULL REFERENCES employees(id),
+    shift_date  date NOT NULL,
+    hours       numeric(4,2) NOT NULL CHECK (hours >= 0),
+    branch_id   int NOT NULL
+);
+
+CREATE TABLE payslips (
+    id           bigserial PRIMARY KEY,
+    employee_id  bigint NOT NULL REFERENCES employees(id),
+    period_start date NOT NULL,
+    period_end   date NOT NULL,
+    gross        numeric(12,2) NOT NULL,
+    branch_id    int NOT NULL
+);
+```
+
+Attendance rows are facts about a shift; a payslip is an immutable snapshot of a period. Neither is recomputed when displayed — the number on the slip is the number that was paid, forever the same.
+
+## The CHECK that pays for itself
+
+`CHECK (hours >= 0)` catches the fat-fingered 80-hour entry at write time, when it is a form error, instead of at payout, when it is an awkward conversation with an employee. The same instinct later became the auto-reshuffle scheduler's maximum-hours rule: constraints encode the rules nobody should have to remember.
+
+## Why this was the right first build
+
+Branch column on every row from day one, exact decimals instead of floating point for money, and no clever derivation logic. The layers that came after — row-level isolation, the reshuffle scheduler, POS revenue analytics — all stand on tables that were already trustworthy.
+""",
+        "project_slug": "dreamland-arcade-management-system",
+        "level": "beginner",
+        "tags": ["postgresql", "python"],
     },
 ]
 
@@ -692,29 +1250,44 @@ async def seed(refresh: bool = False) -> None:
         if attached:
             print(f"[seed] attached demo videos to {attached} projects")
 
-        # Posts: insert any that are missing (by slug) so new write-ups ship
-        # without touching posts already in the database.
-        post_slugs = set((await db.execute(select(Post.slug))).scalars().all())
-        inserted_p = 0
+        # Posts: insert any that are missing (by slug) and backfill the
+        # project/level metadata on rows already in the database — a seed run
+        # never overwrites content that is already published.
+        existing_posts = {
+            p.slug: p for p in (await db.execute(select(Post))).scalars().all()
+        }
+        inserted_p = updated_p = 0
         for raw in POSTS:
             slug = _slugify(raw["title"])
-            if slug in post_slugs:
-                continue
-            db.add(
-                Post(
-                    slug=slug,
-                    title=raw["title"],
-                    excerpt=raw["excerpt"],
-                    content_md=raw["content_md"],
-                    tags=raw["tags"],
-                    status="published",
-                    published_at=datetime.now(timezone.utc),
+            post = existing_posts.get(slug)
+            if post is None:
+                db.add(
+                    Post(
+                        slug=slug,
+                        title=raw["title"],
+                        excerpt=raw["excerpt"],
+                        content_md=raw["content_md"],
+                        tags=raw["tags"],
+                        project_slug=raw.get("project_slug"),
+                        level=raw.get("level"),
+                        status="published",
+                        published_at=datetime.now(timezone.utc),
+                    )
                 )
+                inserted_p += 1
+                continue
+            if "project_slug" in raw and post.project_slug != raw["project_slug"]:
+                post.project_slug = raw["project_slug"]
+                updated_p += 1
+            if "level" in raw and post.level != raw["level"]:
+                post.level = raw["level"]
+                updated_p += 1
+        if inserted_p or updated_p:
+            print(
+                f"[seed] inserted {inserted_p} new posts, "
+                f"backfilled metadata on {updated_p} "
+                f"({len(existing_posts) + inserted_p} total)"
             )
-            post_slugs.add(slug)
-            inserted_p += 1
-        if inserted_p:
-            print(f"[seed] inserted {inserted_p} new posts ({len(post_slugs)} total)")
 
         if (await db.execute(select(Skill))).first() is None:
             for raw in SKILLS:

@@ -16,8 +16,18 @@ def _published_filter(query):
 
 
 @router.get("", response_model=list[PostOut])
-async def list_posts(db: AsyncSession = Depends(get_db)) -> list[Post]:
-    query = _published_filter(select(Post)).order_by(Post.published_at.desc().nullslast())
+async def list_posts(
+    project: str | None = None,
+    level: str | None = None,
+    db: AsyncSession = Depends(get_db),
+) -> list[Post]:
+    """List published posts, optionally anchored to a project and/or level."""
+    query = _published_filter(select(Post))
+    if project:
+        query = query.where(Post.project_slug == project)
+    if level:
+        query = query.where(Post.level == level)
+    query = query.order_by(Post.published_at.desc().nullslast())
     result = await db.execute(query)
     return list(result.scalars().all())
 
