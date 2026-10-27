@@ -1,15 +1,43 @@
-import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { useEffect, useRef } from 'react'
+import { ArrowLeft, ArrowRight, Clock } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Reveal from '../components/Reveal'
-import { formatDate } from '../lib/format'
+import { formatDate, readingTime } from '../lib/format'
 import { usePost, usePosts } from '../lib/hooks'
 
 export default function PostPage() {
   const { slug } = useParams()
   const { data: post, isLoading, error } = usePost(slug)
   const { data: all = [] } = usePosts()
+  const barRef = useRef<HTMLSpanElement>(null)
+
+  // Reading-progress bar: transform-only (GPU-friendly), rAF-throttled.
+  useEffect(() => {
+    if (!post) return
+    let frame = 0
+    const update = () => {
+      frame = 0
+      const el = barRef.current
+      if (!el) return
+      const doc = document.documentElement
+      const max = doc.scrollHeight - doc.clientHeight
+      const progress = max > 0 ? Math.min(1, Math.max(0, doc.scrollTop / max)) : 0
+      el.style.transform = `scaleX(${progress})`
+    }
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (frame) cancelAnimationFrame(frame)
+    }
+  }, [post])
 
   if (isLoading) {
     return (
@@ -40,6 +68,13 @@ export default function PostPage() {
 
   return (
     <article>
+      <span
+        ref={barRef}
+        aria-hidden="true"
+        className="pointer-events-none fixed top-0 left-0 z-50 h-0.5 w-full origin-left bg-accent"
+        style={{ transform: 'scaleX(0)' }}
+      />
+
       <header className="border-b border-line bg-surface">
         <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 md:py-20">
           <Reveal>
@@ -51,8 +86,12 @@ export default function PostPage() {
             </Link>
           </Reveal>
           <Reveal delay={0.05}>
-            <p className="label mt-8 mb-4">
-              /// {formatDate(post.published_at ?? post.created_at)}
+            <p className="label mt-8 mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span>/// {formatDate(post.published_at ?? post.created_at)}</span>
+              <span className="inline-flex items-center gap-1.5 text-mute">
+                <Clock size={12} aria-hidden="true" />
+                {readingTime(post.content_md)} MIN READ
+              </span>
             </p>
             <h1 className="section-title text-[clamp(1.9rem,1.2rem+3vw,3.2rem)]">{post.title}</h1>
             <p className="mt-5 text-lg leading-relaxed text-mute">{post.excerpt}</p>
