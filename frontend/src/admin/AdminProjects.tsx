@@ -18,6 +18,7 @@ type FormState = {
   tags: string
   repo_url: string
   demo_url: string
+  demo_video: string
   featured: boolean
   rating: string
   status: string
@@ -34,6 +35,7 @@ const EMPTY: FormState = {
   tags: '',
   repo_url: '',
   demo_url: '',
+  demo_video: '',
   featured: false,
   rating: '',
   status: 'published',
@@ -58,6 +60,7 @@ function toForm(p: Project): FormState {
     tags: p.tags.map((t) => t.name).join(', '),
     repo_url: p.repo_url ?? '',
     demo_url: p.demo_url ?? '',
+    demo_video: p.demo_video ?? '',
     featured: p.featured,
     rating: p.rating ? String(p.rating) : '',
     status: p.status,
@@ -107,6 +110,7 @@ export default function AdminProjects() {
       tags: splitList(form.tags),
       repo_url: form.repo_url || null,
       demo_url: form.demo_url || null,
+      demo_video: form.demo_video || null,
       featured: form.featured,
       rating: form.rating ? Number(form.rating) : null,
       status: form.status,
@@ -278,6 +282,13 @@ export default function AdminProjects() {
                 value={form.demo_url}
                 onChange={(e) => set('demo_url', e.target.value)}
                 placeholder="https://demo.example.com"
+              />
+            </Field>
+            <Field label="DEMO VIDEO" hint="Public path to an mp4, e.g. /media/videos/work1.mp4">
+              <Input
+                value={form.demo_video}
+                onChange={(e) => set('demo_video', e.target.value)}
+                placeholder="/media/videos/work1.mp4"
               />
             </Field>
 

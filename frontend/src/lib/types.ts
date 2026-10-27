@@ -14,6 +14,7 @@ export interface Project {
   tech_stack: string[]
   repo_url: string | null
   demo_url: string | null
+  demo_video: string | null
   cover_image: string | null
   featured: boolean
   rating: number | null

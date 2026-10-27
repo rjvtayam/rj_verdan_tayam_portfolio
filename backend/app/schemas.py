@@ -44,6 +44,7 @@ class ProjectBase(BaseModel):
     tech_stack: list[str] = []
     repo_url: str | None = None
     demo_url: str | None = None
+    demo_video: str | None = None
     cover_image: str | None = None
     featured: bool = False
     rating: int | None = Field(default=None, ge=1, le=5)
@@ -65,6 +66,7 @@ class ProjectUpdate(BaseModel):
     tech_stack: list[str] | None = None
     repo_url: str | None = None
     demo_url: str | None = None
+    demo_video: str | None = None
     cover_image: str | None = None
     featured: bool | None = None
     rating: int | None = Field(default=None, ge=1, le=5)
@@ -85,6 +87,7 @@ class ProjectOut(BaseModel):
     tech_stack: list[str]
     repo_url: str | None
     demo_url: str | None
+    demo_video: str | None
     cover_image: str | None
     featured: bool
     status: str

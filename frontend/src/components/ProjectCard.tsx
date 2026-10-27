@@ -1,4 +1,4 @@
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, Play } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Reveal from './Reveal'
 import StarRating from './StarRating'
@@ -44,6 +44,15 @@ export default function ProjectCard({ project, index, featured = false }: Props)
             {String(index + 1).padStart(2, '0')}
           </span>
           <div className="flex items-center gap-2">
+            {project.demo_video && (
+              <span
+                className="brutal-flat flex items-center gap-1 px-2 py-0.5 font-mono text-[0.6rem] font-bold tracking-widest"
+                style={{ color, borderColor: color }}
+                title="Demo video on the case study page"
+              >
+                <Play size={8} className="fill-current" /> DEMO
+              </span>
+            )}
             {project.featured && (
               <span
                 className="brutal-flat px-2 py-0.5 font-mono text-[0.6rem] font-bold tracking-widest"

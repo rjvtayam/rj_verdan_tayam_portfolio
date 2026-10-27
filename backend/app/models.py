@@ -59,6 +59,7 @@ class Project(Base):
     tech_stack: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
     repo_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     demo_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    demo_video: Mapped[str | None] = mapped_column(String(500), nullable=True)
     cover_image: Mapped[str | None] = mapped_column(String(500), nullable=True)
     featured: Mapped[bool] = mapped_column(Boolean, default=False)
     rating: Mapped[int | None] = mapped_column(Integer, nullable=True)

@@ -20,12 +20,27 @@ export default function CustomCursor() {
     let rx = -100
     let ry = -100
     let raf = 0
+    let idle = false
 
+    // Runs only while the ring is catching up; once settled the loop stops
+    // entirely (a permanent rAF was burning a core for a static cursor).
     const render = () => {
       rx += (x - rx) * 0.22
       ry += (y - ry) * 0.22
       if (dotRef.current) dotRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`
       if (ringRef.current) ringRef.current.style.transform = `translate3d(${rx}px, ${ry}px, 0)`
+      const dx = x - rx
+      const dy = y - ry
+      if (dx * dx + dy * dy < 0.25) {
+        idle = true
+        raf = 0
+        return
+      }
+      raf = requestAnimationFrame(render)
+    }
+    const wake = () => {
+      if (!idle) return
+      idle = false
       raf = requestAnimationFrame(render)
     }
     raf = requestAnimationFrame(render)
@@ -33,6 +48,7 @@ export default function CustomCursor() {
     const onMove = (e: MouseEvent) => {
       x = e.clientX
       y = e.clientY
+      wake()
       const active = e.target instanceof Element && e.target.closest(ACTIVE_SELECTOR)
       ringRef.current?.classList.toggle('is-active', Boolean(active))
     }

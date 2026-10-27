@@ -384,6 +384,25 @@ async def seed(refresh: bool = False) -> None:
         if inserted:
             print(f"[seed] inserted {inserted} new projects ({len(seeded_slugs)} already present)")
 
+        # Attach demo videos to their corresponding works (idempotent — runs every
+        # seed so already-inserted projects receive their videos as well).
+        video_by_slug = {
+            "lspu-bao-portal": "/media/videos/work1.mp4",  # LSPU-BAO portal walkthrough
+            "zuitt-codecamp-web-app": "/media/videos/work2.mp4",  # capstone showcase
+            "jnhs-portal": "/media/videos/work3.mp4",  # user-friendly navigation
+            "dreamland-arcade-management-system": "/media/videos/work5.mp4",  # python back-end
+            "farm-connect": "/media/videos/work6.mp4",  # web & mobile UI
+        }
+        rows = (await db.execute(select(Project).where(Project.slug.in_(video_by_slug)))).scalars().all()
+        attached = 0
+        for project in rows:
+            want = video_by_slug[project.slug]
+            if project.demo_video != want:
+                project.demo_video = want
+                attached += 1
+        if attached:
+            print(f"[seed] attached demo videos to {attached} projects")
+
         if (await db.execute(select(Post))).first() is None:
             for raw in POSTS:
                 db.add(

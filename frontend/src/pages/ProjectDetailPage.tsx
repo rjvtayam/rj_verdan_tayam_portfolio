@@ -124,6 +124,25 @@ export default function ProjectDetailPage() {
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 md:py-20">
         <div className="grid gap-12 lg:grid-cols-[1fr_260px]">
           <div className="space-y-10">
+            {project.demo_video && (
+              <Reveal className="border-t border-line pt-8">
+                <p className="label mb-4">/// DEMO VIDEO</p>
+                <div className="brutal bg-surface p-2">
+                  <video
+                    src={project.demo_video}
+                    poster={project.demo_video.endsWith('.mp4') ? project.demo_video.replace(/\.mp4$/, '.jpg') : undefined}
+                    controls
+                    preload="metadata"
+                    playsInline
+                    aria-label={`${project.title} demo video`}
+                    className="aspect-video w-full bg-black object-contain"
+                  />
+                </div>
+                <p className="mt-3 font-mono text-[0.68rem] tracking-widest text-mute">
+                  {project.title.toUpperCase()} — DEMO WALKTHROUGH
+                </p>
+              </Reveal>
+            )}
             <Block label="PROBLEM">
               <p>{project.problem}</p>
             </Block>

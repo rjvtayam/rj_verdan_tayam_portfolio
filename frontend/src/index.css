@@ -369,38 +369,60 @@ body {
   pointer-events: none;
   z-index: 0;
 }
+/* Soft glow without filter:blur() — a GPU-expensive repaint every frame.
+   The gradient stops below mimic the old blur(72px) falloff (premultiplied
+   alpha interpolation keeps the edge ring-free) at near-zero cost. */
 .aurora > i {
   position: absolute;
   width: 44vmax;
   height: 44vmax;
   border-radius: 50%;
-  filter: blur(72px);
   opacity: 0.32;
   animation: aurora-drift 22s ease-in-out infinite alternate;
 }
 .aurora > i:nth-child(1) {
   top: -14%;
   left: -8%;
-  background: radial-gradient(circle, var(--neon-1), transparent 65%);
+  background: radial-gradient(
+    circle,
+    var(--neon-1) 0%,
+    color-mix(in srgb, var(--neon-1) 45%, transparent) 36%,
+    transparent 84%
+  );
 }
 .aurora > i:nth-child(2) {
   top: 8%;
   right: -12%;
-  background: radial-gradient(circle, var(--neon-2), transparent 65%);
+  background: radial-gradient(
+    circle,
+    var(--neon-2) 0%,
+    color-mix(in srgb, var(--neon-2) 45%, transparent) 36%,
+    transparent 84%
+  );
   animation-delay: -6s;
   animation-duration: 26s;
 }
 .aurora > i:nth-child(3) {
   bottom: -18%;
   left: 26%;
-  background: radial-gradient(circle, var(--neon-3), transparent 65%);
+  background: radial-gradient(
+    circle,
+    var(--neon-3) 0%,
+    color-mix(in srgb, var(--neon-3) 45%, transparent) 36%,
+    transparent 84%
+  );
   animation-delay: -13s;
   animation-duration: 30s;
 }
 .aurora > i:nth-child(4) {
   bottom: -6%;
   right: 14%;
-  background: radial-gradient(circle, var(--neon-5), transparent 65%);
+  background: radial-gradient(
+    circle,
+    var(--neon-5) 0%,
+    color-mix(in srgb, var(--neon-5) 45%, transparent) 36%,
+    transparent 84%
+  );
   animation-delay: -3s;
   animation-duration: 24s;
 }
@@ -1006,31 +1028,46 @@ html.cursor-fx select {
   -webkit-mask-image: radial-gradient(ellipse 90% 75% at 50% 35%, black 25%, transparent 85%);
   mask-image: radial-gradient(ellipse 90% 75% at 50% 35%, black 25%, transparent 85%);
 }
+/* Same idea as .aurora — gradient stops replace the old blur(95px). */
 .site-bg__orb {
   position: absolute;
   width: 50vmax;
   height: 50vmax;
   border-radius: 50%;
-  filter: blur(95px);
   opacity: 0.12;
   animation: aurora-drift 32s ease-in-out infinite alternate;
 }
 .site-bg__orb:nth-child(2) {
   top: -22%;
   left: -14%;
-  background: radial-gradient(circle, var(--neon-1), transparent 65%);
+  background: radial-gradient(
+    circle,
+    var(--neon-1) 0%,
+    color-mix(in srgb, var(--neon-1) 48%, transparent) 38%,
+    transparent 88%
+  );
 }
 .site-bg__orb:nth-child(3) {
   top: 6%;
   right: -20%;
-  background: radial-gradient(circle, var(--neon-2), transparent 65%);
+  background: radial-gradient(
+    circle,
+    var(--neon-2) 0%,
+    color-mix(in srgb, var(--neon-2) 48%, transparent) 38%,
+    transparent 88%
+  );
   animation-duration: 38s;
   animation-delay: -9s;
 }
 .site-bg__orb:nth-child(4) {
   bottom: -26%;
   left: 18%;
-  background: radial-gradient(circle, var(--neon-3), transparent 65%);
+  background: radial-gradient(
+    circle,
+    var(--neon-3) 0%,
+    color-mix(in srgb, var(--neon-3) 48%, transparent) 38%,
+    transparent 88%
+  );
   animation-duration: 44s;
   animation-delay: -18s;
 }
@@ -1209,12 +1246,13 @@ html.cursor-fx select {
   width: 64vmin;
   height: 64vmin;
   border-radius: 50%;
+  /* falloff replaces the old filter: blur(46px) */
   background: radial-gradient(
     circle,
-    color-mix(in srgb, var(--accent) 30%, transparent),
-    transparent 66%
+    color-mix(in srgb, var(--accent) 30%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 14%, transparent) 42%,
+    transparent 84%
   );
-  filter: blur(46px);
   opacity: 0.55;
   animation: aurora-drift 20s ease-in-out infinite alternate;
   pointer-events: none;

@@ -125,70 +125,9 @@ export const PROFILE = {
   ],
 }
 
-export type MediaItem = {
-  src: string
-  caption?: string
-  /** 'video' entries render with a player + play badge; default 'image'. */
-  type?: 'image' | 'video'
-  poster?: string
-  /** Short length label shown on video thumbnails, e.g. "0:42". */
-  duration?: string
-  /** Small category chip, e.g. "LSPU-BAO". */
-  tag?: string
-}
-
-/** Drop images/videos into `public/media/` and list them here. */
-export const PHOTOS: MediaItem[] = [
-  {
-    src: '/media/videos/work1.mp4',
-    type: 'video',
-    duration: '1:12',
-    tag: 'LSPU-BAO',
-    caption: 'LSPU-BAO office portal — school supplies ordering walkthrough',
-  },
-  {
-    src: '/media/videos/work2.mp4',
-    type: 'video',
-    duration: '0:54',
-    tag: 'CAPSTONE',
-    caption: 'Full-stack capstone demo — API integration and database workflow',
-  },
-  {
-    src: '/media/videos/work3.mp4',
-    type: 'video',
-    duration: '0:18',
-    tag: 'UX/UI',
-    caption: 'User-friendly navigation prototype',
-  },
-  {
-    src: '/media/videos/work4.mp4',
-    type: 'video',
-    duration: '0:11',
-    tag: 'LOGOS',
-    caption: 'Tech startup logo concepts — futuristic mark studies',
-  },
-  {
-    src: '/media/videos/work5.mp4',
-    type: 'video',
-    duration: '0:36',
-    tag: 'BACK-END',
-    caption: 'Python back-end project demo — scalable service logic',
-  },
-  {
-    src: '/media/videos/work6.mp4',
-    type: 'video',
-    duration: '0:35',
-    tag: 'WEB & MOBILE',
-    caption: 'Web & mobile UI showcase',
-  },
-  {
-    src: '/media/certificate.jpg',
-    caption: 'Star Web Development & UX/UI Design Award — Zuitt, 2024',
-    tag: 'AWARD',
-  },
-  {
-    src: '/media/rjtayam.png',
-    caption: 'R.J. Verdan Tayam — full-stack web & mobile app developer',
-    tag: 'PROFILE',
-  },
-]
+/**
+ * Personal photos only — drop images into `public/media/` and list them here,
+ * e.g. `{ src: '/media/my-photo.jpg', caption: 'Laguna, 2025' }`.
+ * Demo videos are attached to their project pages (Project.demo_video), not here.
+ */
+export const PHOTOS: { src: string; caption?: string }[] = []
