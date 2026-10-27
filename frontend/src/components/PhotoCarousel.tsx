@@ -87,7 +87,7 @@ export default function PhotoCarousel({ photos }: { photos: Photo[] }) {
             type="button"
             onClick={() => go(-1)}
             aria-label="Previous photo"
-            className="absolute top-1/2 left-2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-line bg-bg/80 opacity-0 backdrop-blur transition group-hover:opacity-100 focus-visible:opacity-100"
+            className="absolute top-1/2 left-2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-line bg-bg/80 opacity-0 backdrop-blur transition [@media(hover:none)]:opacity-100 group-hover:opacity-100 focus-visible:opacity-100"
           >
             <ChevronLeft size={16} />
           </button>
@@ -95,24 +95,28 @@ export default function PhotoCarousel({ photos }: { photos: Photo[] }) {
             type="button"
             onClick={() => go(1)}
             aria-label="Next photo"
-            className="absolute top-1/2 right-2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-line bg-bg/80 opacity-0 backdrop-blur transition group-hover:opacity-100 focus-visible:opacity-100"
+            className="absolute top-1/2 right-2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-line bg-bg/80 opacity-0 backdrop-blur transition [@media(hover:none)]:opacity-100 group-hover:opacity-100 focus-visible:opacity-100"
           >
             <ChevronRight size={16} />
           </button>
-          <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
+          <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2">
             {photos.map((_, i) => (
               <button
                 key={i}
                 type="button"
                 aria-label={`Go to photo ${i + 1}`}
                 onClick={() => setIdx(i)}
-                className="h-1.5 rounded-full transition-all"
-                style={{
-                  width: i === idx ? 18 : 6,
-                  background: i === idx ? 'var(--accent)' : 'var(--line)',
-                  boxShadow: i === idx ? '0 0 8px var(--accent)' : 'none',
-                }}
-              />
+                className="flex h-8 w-8 items-center justify-center"
+              >
+                <span
+                  className="h-1.5 rounded-full transition-all"
+                  style={{
+                    width: i === idx ? 18 : 6,
+                    background: i === idx ? 'var(--accent)' : 'var(--line)',
+                    boxShadow: i === idx ? '0 0 8px var(--accent)' : 'none',
+                  }}
+                />
+              </button>
             ))}
           </div>
         </>

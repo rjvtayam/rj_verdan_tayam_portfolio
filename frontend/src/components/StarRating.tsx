@@ -47,7 +47,7 @@ export default function StarRating({ value, onChange, size = 16, count, classNam
     >
       {stars}
       {count !== undefined && (
-        <span className="ml-1.5 font-mono text-[0.7rem] text-muted">
+        <span className="ml-1.5 font-mono text-[0.7rem] text-mute">
           {count === 0 ? 'no votes yet' : `${value.toFixed(1)} · ${count} vote${count === 1 ? '' : 's'}`}
         </span>
       )}

@@ -97,7 +97,7 @@ export default function CommandPalette({ open, onClose }: { open: boolean; onClo
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 border-b border-line px-4 py-3">
-          <Search size={15} className="text-muted" />
+          <Search size={15} className="text-mute" />
           <input
             ref={inputRef}
             value={query}
@@ -106,14 +106,14 @@ export default function CommandPalette({ open, onClose }: { open: boolean; onClo
               setSelected(0)
             }}
             placeholder="type a command…"
-            className="w-full bg-transparent font-mono text-sm outline-none placeholder:text-muted"
+            className="w-full bg-transparent font-mono text-sm outline-none placeholder:text-mute"
             aria-label="Command search"
           />
-          <kbd className="font-mono text-[0.65rem] text-muted">esc</kbd>
+          <kbd className="font-mono text-[0.65rem] text-mute">esc</kbd>
         </div>
         <div ref={listRef} className="max-h-72 overflow-y-auto py-1.5">
           {filtered.length === 0 && (
-            <p className="px-4 py-3 font-mono text-sm text-muted">no matches</p>
+            <p className="px-4 py-3 font-mono text-sm text-mute">no matches</p>
           )}
           {filtered.map((item, i) => (
             <button

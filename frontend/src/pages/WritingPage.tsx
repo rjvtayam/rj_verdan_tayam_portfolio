@@ -51,14 +51,14 @@ export default function WritingPage() {
                 <span className="shrink-0 font-mono text-xs tracking-widest text-mute">
                   {formatDate(post.published_at ?? post.created_at)}
                 </span>
-                <div className="flex-1">
+                <div className="min-w-0 flex-1">
                   <h2 className="font-mono text-lg font-bold tracking-tight transition-colors group-hover:text-accent sm:text-xl">
                     {post.title}
                   </h2>
                   <p className="mt-1.5 line-clamp-2 text-sm text-mute">{post.excerpt}</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
-                  <span className="hidden font-mono text-[0.65rem] tracking-widest text-mute md:inline">
+                  <span className="hidden max-w-[28ch] truncate font-mono text-[0.65rem] tracking-widest text-mute md:block">
                     {post.tags.map((t) => `#${t}`).join(' ')}
                   </span>
                   <ArrowUpRight

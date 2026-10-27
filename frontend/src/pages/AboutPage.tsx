@@ -70,7 +70,7 @@ export default function AboutPage() {
 
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 md:py-14">
         <Reveal delay={0.08} className="grid items-center gap-8 md:grid-cols-[220px_1fr] lg:grid-cols-[220px_1fr_1fr]">
-          <div className="neon-card relative mx-auto w-40 shrink-0 overflow-hidden md:w-full" style={{ ['--card-neon' as string]: 'var(--neon-1)' }}>
+          <div className="neon-card relative mx-auto w-40 shrink-0 overflow-hidden md:row-span-2 md:w-full lg:row-span-1" style={{ ['--card-neon' as string]: 'var(--neon-1)' }}>
             <img
               src="/media/rjtayam.png"
               alt="R.J. Verdan Tayam"

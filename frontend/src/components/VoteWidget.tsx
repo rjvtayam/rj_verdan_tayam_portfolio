@@ -41,13 +41,13 @@ export default function VoteWidget({ projectId, initialAvg, initialCount }: Prop
       <p className="label mb-3">Rate this project</p>
       <div className="flex flex-wrap items-center gap-3">
         <StarRating value={myVote ?? 0} onChange={rate} size={26} />
-        <span className="font-mono text-sm text-muted">
+        <span className="font-mono text-sm text-mute">
           {stats.count > 0
             ? `${stats.avg.toFixed(1)} / 5 · ${stats.count} visitor${stats.count === 1 ? '' : 's'}`
             : 'Be the first to rate'}
         </span>
       </div>
-      <p className="mt-3 font-mono text-xs text-muted" aria-live="polite">
+      <p className="mt-3 font-mono text-xs text-mute" aria-live="polite">
         {vote.isPending
           ? 'submitting…'
           : myVote

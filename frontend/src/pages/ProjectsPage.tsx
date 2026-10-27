@@ -39,7 +39,7 @@ export default function ProjectsPage() {
           <button
             type="button"
             onClick={() => setActiveTag(null)}
-            className={`brutal-flat px-3 py-1.5 font-mono text-[0.68rem] tracking-widest uppercase transition-colors ${
+            className={`brutal-flat px-3 py-2.5 font-mono text-[0.68rem] tracking-widest uppercase transition-colors sm:py-1.5 ${
               activeTag === null ? 'bg-accent text-accent-ink' : 'bg-surface hover:border-accent'
             }`}
           >
@@ -50,7 +50,7 @@ export default function ProjectsPage() {
               key={tag}
               type="button"
               onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-              className={`brutal-flat px-3 py-1.5 font-mono text-[0.68rem] tracking-widest uppercase transition-colors ${
+              className={`brutal-flat px-3 py-2.5 font-mono text-[0.68rem] tracking-widest uppercase transition-colors sm:py-1.5 ${
                 activeTag === tag ? 'bg-accent text-accent-ink' : 'bg-surface hover:border-accent'
               }`}
             >

@@ -80,9 +80,14 @@ export default function TestimonialsSection() {
                 </span>
                 <div>
                   <p className="font-mono text-sm font-bold">testimonial received</p>
-                  <p className="text-sm text-muted">Thanks — it shows up on this page right away.</p>
+                  <p className="text-sm text-mute">Thanks — it shows up on this page right away.</p>
                 </div>
-                <button type="button" onClick={() => setOpen(false)} className="ml-auto text-muted hover:text-ink" aria-label="Close">
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="ml-auto flex h-9 w-9 items-center justify-center rounded-md text-mute transition-colors hover:bg-bg hover:text-ink"
+                  aria-label="Close"
+                >
                   <X size={18} />
                 </button>
               </div>
@@ -166,9 +171,9 @@ export default function TestimonialsSection() {
         )}
 
         {isLoading ? (
-          <p className="font-mono text-sm text-muted">loading testimonials…</p>
+          <p className="font-mono text-sm text-mute">loading testimonials…</p>
         ) : testimonials.length === 0 ? (
-          <p className="font-mono text-sm text-muted">no testimonials yet — be the first.</p>
+          <p className="font-mono text-sm text-mute">no testimonials yet — be the first.</p>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {testimonials.map((t, i) => (
@@ -183,7 +188,7 @@ export default function TestimonialsSection() {
                     <Avatar name={t.name} src={t.avatar_url} size={40} />
                     <div className="min-w-0">
                       <p className="truncate font-mono text-sm font-bold">{t.name}</p>
-                      <p className="truncate text-xs text-muted">{t.role || 'client'}</p>
+                      <p className="truncate text-xs text-mute">{t.role || 'client'}</p>
                     </div>
                     <span
                       className="neon-dot ml-auto h-2 w-2 rounded-full"

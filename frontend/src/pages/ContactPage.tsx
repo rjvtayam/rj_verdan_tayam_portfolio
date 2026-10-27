@@ -166,7 +166,7 @@ export default function ContactPage() {
                 onClick={() => copy('email', 'rickyjhon.tayam@gmail.com')}
                 aria-label="Copy email"
                 title="Copy email"
-                className={`shrink-0 rounded-md p-1.5 transition-colors hover:bg-bg hover:text-accent ${
+                className={`shrink-0 rounded-md p-3 transition-colors hover:bg-bg hover:text-accent sm:p-1.5 ${
                   copied === 'email' ? 'text-accent' : 'text-mute'
                 }`}
               >
@@ -185,7 +185,7 @@ export default function ContactPage() {
                 onClick={() => copy('phone', '+639661855866')}
                 aria-label="Copy phone number"
                 title="Copy phone number"
-                className={`shrink-0 rounded-md p-1.5 transition-colors hover:bg-bg hover:text-accent ${
+                className={`shrink-0 rounded-md p-3 transition-colors hover:bg-bg hover:text-accent sm:p-1.5 ${
                   copied === 'phone' ? 'text-accent' : 'text-mute'
                 }`}
               >

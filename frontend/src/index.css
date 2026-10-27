@@ -177,6 +177,20 @@ body {
   color: var(--muted);
 }
 
+/* tighter label for dense cells (stats, kickers) — declared after .label so it
+   wins the cascade at equal specificity; loosens back up on desktop */
+.label-sm {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  line-height: 1.35;
+}
+@media (min-width: 1024px) {
+  .label-sm {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+  }
+}
+
 .link-underline {
   background-image: linear-gradient(var(--accent), var(--accent));
   background-size: 0% 2px;
@@ -229,6 +243,7 @@ body {
   font-size: 1.05rem;
   line-height: 1.75;
   color: var(--ink);
+  overflow-wrap: anywhere;
 }
 .prose-tech h2 {
   font-family: var(--font-mono);
@@ -300,6 +315,34 @@ body {
   border: none;
   border-top: 1px solid var(--line);
   margin: 2rem 0;
+}
+/* GFM tables — block + horizontal scroll so wide tables stay reachable on phones */
+.prose-tech table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 1.4rem 0;
+}
+.prose-tech th,
+.prose-tech td {
+  border: 1px solid var(--line);
+  padding: 0.55rem 0.85rem;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.prose-tech th {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  background: var(--surface-2);
+}
+.prose-tech td {
+  font-size: 0.95rem;
+  color: var(--muted);
 }
 
 /* ---------- neon cards ---------- */
@@ -740,6 +783,11 @@ html.cursor-fx select {
   transform: translateY(6px);
   animation: boot-in 0.3s ease forwards;
 }
+@media (max-width: 479px) {
+  .boot-line {
+    font-size: 0.66rem;
+  }
+}
 .boot-line b {
   color: var(--accent);
   font-weight: 500;
@@ -969,6 +1017,12 @@ html.cursor-fx select {
   padding: 0 1px;
   background: none;
   border: none;
+}
+/* bigger tap target on touch screens without changing the desktop look */
+@media (pointer: coarse) {
+  .star-btn {
+    padding: 7px 4px;
+  }
 }
 .star-btn:hover .star {
   transform: scale(1.18);

@@ -93,7 +93,7 @@ export default function HomePage() {
                 initial={{ opacity: 0, x: -16 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
-                className="label mb-6"
+                className="label label-sm mb-6"
               >
                 /// FULL-STACK WEB &amp; MOBILE DEVELOPER
               </motion.p>
@@ -176,7 +176,7 @@ export default function HomePage() {
             {stats.map((stat, i) => (
               <div
                 key={stat.k}
-                className="relative overflow-hidden border-r border-b border-line px-5 py-5"
+                className="relative overflow-hidden border-r border-b border-line px-4 py-5 sm:px-5"
                 style={{ background: `color-mix(in srgb, ${STAT_NEON[i]} 7%, var(--bg))` }}
               >
                 <span
@@ -187,8 +187,8 @@ export default function HomePage() {
                 <p className="font-mono text-3xl font-bold" style={{ color: STAT_NEON[i] }}>
                   {stat.text ?? (stat.value ? <CountUp value={stat.value} /> : '—')}
                 </p>
-                <p className="label mt-1.5 flex items-center gap-1.5">
-                  <stat.Icon size={13} style={{ color: STAT_NEON[i] }} />
+                <p className="label label-sm mt-1.5 flex items-center gap-1.5">
+                  <stat.Icon size={13} className="shrink-0" style={{ color: STAT_NEON[i] }} />
                   {stat.k}
                 </p>
               </div>

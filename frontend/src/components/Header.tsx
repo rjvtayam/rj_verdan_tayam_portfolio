@@ -18,7 +18,7 @@ function openPhotos() {
 
 function Monogram() {
   return (
-    <Link to="/" aria-label="Home" className="group flex items-center gap-3">
+    <Link to="/" className="group flex items-center gap-3">
       <span className="brutal-flat flex h-10 w-10 items-center justify-center bg-accent font-mono text-sm font-bold text-accent-ink transition-transform group-hover:-translate-y-0.5">
         RJ
       </span>
@@ -69,8 +69,8 @@ export default function Header() {
             <button
               type="button"
               onClick={openPalette}
-              aria-label="Open command palette"
-              className="brutal-flat flex h-10 items-center gap-2 bg-surface px-3 font-mono text-xs text-muted transition-colors hover:text-accent"
+              aria-label="⌘K — open command palette"
+              className="brutal-flat flex h-10 items-center gap-2 bg-surface px-3 font-mono text-xs text-mute transition-colors hover:text-accent"
             >
               <Command size={14} />
               <span className="tracking-widest">⌘K</span>
@@ -92,7 +92,7 @@ export default function Header() {
             type="button"
             onClick={openPalette}
             aria-label="Open command palette"
-            className="brutal-flat flex h-10 w-10 items-center justify-center bg-surface text-muted"
+            className="brutal-flat flex h-10 w-10 items-center justify-center bg-surface text-mute"
           >
             <Command size={16} />
           </button>
