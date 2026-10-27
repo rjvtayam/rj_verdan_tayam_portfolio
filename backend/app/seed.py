@@ -117,6 +117,23 @@ PROJECTS = [
         "repo_url": None,
     },
     {
+        "title": "LSPU-BAO Portal",
+        "summary": "Ordering and service portal for LSPU-BAO, the Laguna State Polytechnic University bookkeeping and supplies office — streamlining how students and faculty access essential resources.",
+        "problem": "The BAO office served students and faculty through walk-in requests only; supplies availability and order status lived in logbooks, so people queued without knowing whether their items were ready.",
+        "approach": "Built a web portal for the office with product/catalog browsing, order placement and status tracking, backed by a Python service layer and SQL database. The interface keeps the flow simple for first-time users — browse, request, receive updates — while staff manage inventory and fulfill orders from a dedicated panel.",
+        "results": [
+            {"label": "Campus offices served", "value": "LSPU-BAO"},
+            {"label": "Order flow", "value": "Browse → request → track"},
+            {"label": "Access", "value": "Students & faculty"},
+        ],
+        "tech_stack": ["Python", "MySQL", "JavaScript", "HTML5", "CSS3"],
+        "featured": False,
+        "rating": 5,
+        "tags": ["python", "mysql", "education", "campus"],
+        "demo_url": None,
+        "repo_url": None,
+    },
+    {
         "title": "Dreamland Arcade Management System",
         "summary": "Full-stack management platform for two arcade branches — role-based dashboards, POS terminal, scheduling and inventory, with branch data isolation enforced by PostgreSQL Row-Level Security.",
         "problem": "Two branches (Siniloan and Infanta) ran employees, schedules, POS sales, inventory and payroll on paper and disconnected spreadsheets — with no privacy boundary between branches and no single login for staff.",
@@ -287,25 +304,28 @@ EXPERIENCES = [
     },
 ]
 
-# PLACEHOLDER testimonials — replace with real client quotes (admin console > content).
+# REAL testimonials from past collaborators (avatars served from frontend public/media).
 TESTIMONIALS = [
     {
-        "name": "Maria Santos",
-        "role": "Founder, retail startup",
+        "name": "Reymar Villana",
+        "role": "Student",
         "rating": 5,
-        "quote": "R.J. took our storefront from idea to launch in six weeks. The checkout is fast on mobile and we finally have an admin panel our team can actually use.",
+        "quote": "RJ was a fantastic developer to work with! He delivered exactly what we needed.",
+        "avatar_url": "/media/testimonials/reymar-villana.jpg",
     },
     {
-        "name": "Jerome Cruz",
-        "role": "Product Lead",
+        "name": "Marchie Tan",
+        "role": "IWC Supervisor",
         "rating": 5,
-        "quote": "Rare combination: writes clean APIs, cares about the database, and still makes the UI feel polished. Our dashboard p95 dropped under 200ms after his refactor.",
+        "quote": "Working with RJ on our project was seamless and professional. Highly recommend!",
+        "avatar_url": "/media/testimonials/marchie-tan.jpg",
     },
     {
-        "name": "A. Reyes",
-        "role": "Design collaborator",
-        "rating": 4,
-        "quote": "Designs survive contact with real content — every breakpoint held up, even at 360px. Communication was clear and delivery was on schedule.",
+        "name": "Richmond Mendez",
+        "role": "Civil Engineer",
+        "rating": 5,
+        "quote": "RJ has a great understanding of user needs, and his designs are fantastic.",
+        "avatar_url": "/media/testimonials/richmond-mendez.jpg",
     },
 ]
 
@@ -389,13 +409,20 @@ async def seed(refresh: bool = False) -> None:
                 db.add(Experience(**raw))
             print(f"[seed] {len(EXPERIENCES)} experiences")
 
-        if (await db.execute(select(Testimonial))).first() is None:
-            for raw in TESTIMONIALS:
-                db.add(Testimonial(**raw, status="published"))
-            print(f"[seed] {len(TESTIMONIALS)} testimonials")
+        # testimonials: replace fictional placeholders with real quotes, add any missing by name
+        placeholder_names = {"Maria Santos", "Jerome Cruz", "A. Reyes"}
+        await db.execute(delete(Testimonial).where(Testimonial.name.in_(placeholder_names)))
+        existing_names = set((await db.execute(select(Testimonial.name))).scalars().all())
+        inserted_t = 0
+        for raw in TESTIMONIALS:
+            if raw["name"] in existing_names:
+                continue
+            db.add(Testimonial(**raw, status="published"))
+            inserted_t += 1
+        if inserted_t:
+            print(f"[seed] inserted {inserted_t} real testimonials")
         else:
             print("[seed] testimonials already present, skipping")
-
         await db.commit()
 
 

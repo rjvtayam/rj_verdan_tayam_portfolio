@@ -2,6 +2,7 @@ import { ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Reveal from './Reveal'
 import StarRating from './StarRating'
+import { techColor } from '../lib/techColors'
 import type { Project } from '../lib/types'
 
 const NEON = ['var(--neon-1)', 'var(--neon-2)', 'var(--neon-3)', 'var(--neon-4)', 'var(--neon-5)', 'var(--neon-6)']
@@ -92,14 +93,26 @@ export default function ProjectCard({ project, index, featured = false }: Props)
 
         <div className="mt-auto pt-6">
           <div className="flex flex-wrap gap-2">
-            {project.tech_stack.slice(0, featured ? 6 : 4).map((tech) => (
-              <span
-                key={tech}
-                className="pill-neon px-2 py-1 font-mono text-[0.62rem] tracking-wider uppercase"
-              >
-                {tech}
-              </span>
-            ))}
+            {project.tech_stack.slice(0, featured ? 6 : 4).map((tech) => {
+              const c = techColor(tech)
+              return (
+                <span
+                  key={tech}
+                  className="flex items-center gap-1.5 border px-2 py-1 font-mono text-[0.62rem] tracking-wider uppercase transition-colors"
+                  style={{
+                    borderColor: `color-mix(in srgb, ${c} 45%, var(--line))`,
+                    background: `color-mix(in srgb, ${c} 9%, transparent)`,
+                  }}
+                >
+                  <span
+                    className="h-1.5 w-1.5 rounded-full"
+                    style={{ background: c, boxShadow: `0 0 6px ${c}` }}
+                    aria-hidden="true"
+                  />
+                  <span style={{ color: `color-mix(in srgb, ${c} 82%, var(--ink))` }}>{tech}</span>
+                </span>
+              )
+            })}
           </div>
           {project.tags.length > 0 && (
             <p className="mt-4 font-mono text-[0.65rem] tracking-widest text-mute">

@@ -69,7 +69,22 @@ export default function AboutPage() {
       />
 
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 md:py-14">
-        <Reveal delay={0.08} className="grid gap-6 md:grid-cols-2">
+        <Reveal delay={0.08} className="grid items-center gap-8 md:grid-cols-[220px_1fr] lg:grid-cols-[220px_1fr_1fr]">
+          <div className="neon-card relative mx-auto w-40 shrink-0 overflow-hidden md:w-full" style={{ ['--card-neon' as string]: 'var(--neon-1)' }}>
+            <img
+              src="/media/rjtayam.png"
+              alt="R.J. Verdan Tayam"
+              className="aspect-[4/5] w-full object-cover"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+              }}
+            />
+            <span
+              className="pointer-events-none absolute inset-0"
+              style={{ background: 'linear-gradient(to top, color-mix(in srgb, var(--neon-1) 18%, transparent), transparent 45%)' }}
+              aria-hidden="true"
+            />
+          </div>
           <p className="leading-relaxed text-mute">
             I&apos;m R.J. Verdan Tayam, a full-stack web developer. I build products end to end:
             database schema and migrations, typed APIs, and the interface people actually touch.

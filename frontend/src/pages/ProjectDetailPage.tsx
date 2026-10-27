@@ -5,6 +5,7 @@ import Reveal from '../components/Reveal'
 import StarRating from '../components/StarRating'
 import VoteWidget from '../components/VoteWidget'
 import { useProject, useProjects } from '../lib/hooks'
+import { techColor } from '../lib/techColors'
 
 function Block({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -155,12 +156,39 @@ export default function ProjectDetailPage() {
 
             <div className="brutal-flat bg-surface p-5">
               <p className="label mb-3">STACK</p>
+              {/* GitHub-style stack spectrum — one segment per tech, equal share */}
+              {project.tech_stack.length > 0 && (
+                <div
+                  className="mb-4 flex h-2 overflow-hidden rounded-full"
+                  role="img"
+                  aria-label={`Stack composition: ${project.tech_stack.join(', ')}`}
+                >
+                  {project.tech_stack.map((tech) => (
+                    <span
+                      key={tech}
+                      className="h-full flex-1"
+                      style={{
+                        background: techColor(tech),
+                        boxShadow: `0 0 8px ${techColor(tech)}66`,
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
               <ul className="space-y-2 font-mono text-sm">
-                {project.tech_stack.map((tech) => (
-                  <li key={tech} className="flex items-center gap-2">
-                    <span className="text-accent">▸</span> {tech}
-                  </li>
-                ))}
+                {project.tech_stack.map((tech) => {
+                  const c = techColor(tech)
+                  return (
+                    <li key={tech} className="flex items-center gap-2">
+                      <span
+                        className="h-2 w-2 rounded-full"
+                        style={{ background: c, boxShadow: `0 0 6px ${c}` }}
+                        aria-hidden="true"
+                      />
+                      <span style={{ color: `color-mix(in srgb, ${c} 80%, var(--ink))` }}>{tech}</span>
+                    </li>
+                  )
+                })}
               </ul>
             </div>
 

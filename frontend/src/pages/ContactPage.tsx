@@ -227,7 +227,7 @@ export default function ContactPage() {
               </li>
               <li>
                 <a
-                  href="https://linkedin.com/"
+                  href="https://www.linkedin.com/in/tayam-ricky-jhon-v-959524292/"
                   target="_blank"
                   rel="noreferrer noopener"
                   className="link-underline inline-flex items-center gap-2 hover:text-accent"

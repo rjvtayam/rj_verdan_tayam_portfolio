@@ -8,7 +8,7 @@ const YEAR = new Date().getFullYear()
 const SOCIALS = [
   { href: 'https://web.facebook.com/rj.tayam', label: 'FACEBOOK', Icon: FacebookIcon },
   { href: 'https://github.com/rjvtayam', label: 'GITHUB', Icon: GithubIcon },
-  { href: 'https://linkedin.com/', label: 'LINKEDIN', Icon: LinkedinIcon },
+  { href: 'https://www.linkedin.com/in/tayam-ricky-jhon-v-959524292/', label: 'LINKEDIN', Icon: LinkedinIcon },
   { href: 'mailto:rickyjhon.tayam@gmail.com', label: 'EMAIL', Icon: Mail },
 ]
 

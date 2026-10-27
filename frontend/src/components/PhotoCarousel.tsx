@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Camera, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Camera, ChevronLeft, ChevronRight, Play } from 'lucide-react'
 
-type Photo = { src: string; caption?: string }
+type Photo = { src: string; caption?: string; type?: 'image' | 'video'; poster?: string; tag?: string }
 
 export default function PhotoCarousel({ photos }: { photos: Photo[] }) {
   const [idx, setIdx] = useState(0)
@@ -35,13 +35,14 @@ export default function PhotoCarousel({ photos }: { photos: Photo[] }) {
   }, [total])
 
   const current = photos[idx]
+  const currentIsVideo = current?.type === 'video'
 
   return (
     <div
       ref={boxRef}
       tabIndex={0}
       role="region"
-      aria-label="Photo carousel"
+      aria-label="Media carousel"
       className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-line bg-surface-2 outline-none focus-visible:border-accent"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
@@ -53,25 +54,56 @@ export default function PhotoCarousel({ photos }: { photos: Photo[] }) {
           </span>
           <p className="label">photos coming soon</p>
           <p className="max-w-[16rem] px-4 font-mono text-[0.65rem] leading-relaxed text-mute">
-            drop images into <b className="text-ink">public/photos/</b> and list them in{' '}
+            drop media into <b className="text-ink">public/media/</b> and list them in{' '}
             <b className="text-ink">lib/profile.ts</b>
           </p>
         </div>
       ) : (
         <AnimatePresence mode="wait">
-          <motion.img
-            key={current.src}
-            src={current.src}
-            alt={current.caption ?? 'Ricky Jhon V. Tayam'}
-            draggable={false}
-            onError={() => setBroken((s) => new Set(s).add(idx))}
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          {currentIsVideo ? (
+            <motion.video
+              key={current.src}
+              src={current.src}
+              poster={current.poster}
+              preload="metadata"
+              muted
+              aria-hidden="true"
+              onError={() => setBroken((s) => new Set(s).add(idx))}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          ) : (
+            <motion.img
+              key={current.src}
+              src={current.src}
+              alt={current.caption ?? 'Ricky Jhon V. Tayam'}
+              draggable={false}
+              onError={() => setBroken((s) => new Set(s).add(idx))}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          )}
         </AnimatePresence>
+      )}
+
+      {currentIsVideo && !broken.has(idx) && total > 0 && (
+        <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full border border-white/40 bg-black/45 text-white backdrop-blur">
+            <Play size={16} className="ml-0.5 fill-current" />
+          </span>
+        </span>
+      )}
+
+      {current?.tag && !broken.has(idx) && (
+        <span className="pointer-events-none absolute top-3 left-3 border border-accent/50 bg-black/60 px-1.5 py-0.5 font-mono text-[0.6rem] tracking-widest text-accent backdrop-blur">
+          {current.tag}
+        </span>
       )}
 
       {current?.caption && total > 0 && !broken.has(idx) && (
@@ -85,7 +117,7 @@ export default function PhotoCarousel({ photos }: { photos: Photo[] }) {
           <button
             type="button"
             onClick={() => go(-1)}
-            aria-label="Previous photo"
+            aria-label="Previous item"
             className="absolute top-1/2 left-2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-line bg-bg/80 opacity-0 backdrop-blur transition group-hover:opacity-100 focus-visible:opacity-100"
           >
             <ChevronLeft size={16} />
@@ -93,7 +125,7 @@ export default function PhotoCarousel({ photos }: { photos: Photo[] }) {
           <button
             type="button"
             onClick={() => go(1)}
-            aria-label="Next photo"
+            aria-label="Next item"
             className="absolute top-1/2 right-2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-line bg-bg/80 opacity-0 backdrop-blur transition group-hover:opacity-100 focus-visible:opacity-100"
           >
             <ChevronRight size={16} />
@@ -103,7 +135,7 @@ export default function PhotoCarousel({ photos }: { photos: Photo[] }) {
               <button
                 key={i}
                 type="button"
-                aria-label={`Go to photo ${i + 1}`}
+                aria-label={`Go to item ${i + 1}`}
                 onClick={() => setIdx(i)}
                 className="h-1.5 rounded-full transition-all"
                 style={{
