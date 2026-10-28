@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
+from app.core.ratelimit import rate_limit
 from app.db import get_db
 from app.models import Project, ProjectVote, Tag
 from app.schemas import ProjectOut, VoteRequest, VoteResult
@@ -59,8 +61,10 @@ async def get_project(slug: str, db: AsyncSession = Depends(get_db)) -> ProjectO
 async def vote_project(
     project_id: int,
     body: VoteRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ) -> VoteResult:
+    rate_limit(request, "votes", settings.RATE_LIMIT_VOTES_PER_HOUR)
     project = await db.get(Project, project_id)
     if project is None or project.status != "published":
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")

@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowLeft, KeyRound } from 'lucide-react'
-import { api, tokenStore, ApiError } from '../lib/api'
+import { api, persistSession, ApiError } from '../lib/api'
 import { Btn, ErrorNote, Field, Input, Panel } from './ui'
 
 export default function AdminLoginPage() {
@@ -18,7 +18,7 @@ export default function AdminLoginPage() {
     setError(null)
     try {
       const res = await api.auth.login(email, password)
-      tokenStore.set(res.access_token)
+      persistSession(res)
       navigate('/admin', { replace: true })
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Login failed')

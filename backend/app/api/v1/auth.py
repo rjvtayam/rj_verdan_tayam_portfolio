@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.deps import get_current_user, require_admin
 from app.core.security import (
     create_access_token,
+    create_refresh_token,
     decode_token,
     verify_password,
 )
@@ -23,8 +24,11 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)) -> Token
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password"
         )
+    uid = str(user.id)
     return TokenResponse(
-        access_token=create_access_token(str(user.id), user.role), role=user.role
+        access_token=create_access_token(uid, user.role),
+        refresh_token=create_refresh_token(uid, user.role),
+        role=user.role,
     )
 
 
@@ -36,7 +40,13 @@ async def refresh(credentials: str, db: AsyncSession = Depends(get_db)) -> Token
     user = await db.get(User, int(payload["sub"]))
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User no longer exists")
-    return TokenResponse(access_token=create_access_token(str(user.id), user.role), role=user.role)
+    uid = str(user.id)
+    # Rotate the refresh token so a stolen one has a bounded useful life.
+    return TokenResponse(
+        access_token=create_access_token(uid, user.role),
+        refresh_token=create_refresh_token(uid, user.role),
+        role=user.role,
+    )
 
 
 @router.get("/me", response_model=UserOut)

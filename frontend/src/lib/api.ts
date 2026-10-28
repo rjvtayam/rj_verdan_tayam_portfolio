@@ -18,12 +18,32 @@ import type {
 
 const BASE = import.meta.env.VITE_API_URL ?? '/api/v1'
 const TOKEN_KEY = 'portfolio_token'
+const REFRESH_KEY = 'portfolio_refresh'
 const VISITOR_KEY = 'portfolio_visitor'
 
 export const tokenStore = {
   get: (): string | null => localStorage.getItem(TOKEN_KEY),
   set: (token: string): void => localStorage.setItem(TOKEN_KEY, token),
   clear: (): void => localStorage.removeItem(TOKEN_KEY),
+}
+
+export const refreshStore = {
+  get: (): string | null => localStorage.getItem(REFRESH_KEY),
+  set: (token: string): void => localStorage.setItem(REFRESH_KEY, token),
+  clear: (): void => localStorage.removeItem(REFRESH_KEY),
+}
+
+/** Clear both tokens and tell the app the session ended. */
+export function clearSession(): void {
+  tokenStore.clear()
+  refreshStore.clear()
+  window.dispatchEvent(new Event('auth:expired'))
+}
+
+/** Clear both tokens without firing the expiry event (explicit logout). */
+export function clearTokens(): void {
+  tokenStore.clear()
+  refreshStore.clear()
 }
 
 export class ApiError extends Error {
@@ -54,7 +74,51 @@ export function getVisitorId(): string {
   return id
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+/** In-flight refresh, shared by concurrent 401s so one expiry triggers
+ *  exactly one refresh call (single-flight). */
+let refreshing: Promise<boolean> | null = null
+
+/**
+ * Exchange the stored refresh token for a fresh access token. Resolves true
+ * on success. Concurrent callers await the same promise; the refresh token
+ * is rotated by the server and re-stored.
+ */
+function tryRefresh(): Promise<boolean> {
+  if (!refreshing) {
+    const refresh = refreshStore.get()
+    refreshing = (async () => {
+      if (!refresh) return false
+      try {
+        const res = await fetch(`${BASE}/auth/refresh?credentials=${encodeURIComponent(refresh)}`, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+        })
+        if (!res.ok) return false
+        const data = (await res.json()) as { access_token?: string; refresh_token?: string }
+        if (!data.access_token) return false
+        tokenStore.set(data.access_token)
+        if (data.refresh_token) refreshStore.set(data.refresh_token)
+        return true
+      } catch {
+        return false
+      } finally {
+        // allow the next expiry to refresh again once this attempt settles
+        refreshing = null
+      }
+    })()
+  }
+  return refreshing
+}
+
+// Endpoints where a 401 means "bad credentials", not "expired session" —
+// never attempt a silent refresh for these.
+const AUTH_PATHS = new Set(['/auth/login', '/auth/refresh'])
+
+function isAuthPath(path: string): boolean {
+  return AUTH_PATHS.has(path)
+}
+
+async function request<T>(path: string, options: RequestInit = {}, retried = false): Promise<T> {
   const headers = new Headers(options.headers)
   headers.set('Accept', 'application/json')
   if (options.body && !(options.body instanceof FormData)) headers.set('Content-Type', 'application/json')
@@ -63,6 +127,14 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   const res = await fetch(`${BASE}${path}`, { ...options, headers })
   if (res.status === 204) return undefined as T
+
+  // Expired access token on an authenticated call: refresh once, retry once.
+  if (res.status === 401 && token && !retried && !isAuthPath(path)) {
+    if (await tryRefresh()) return request<T>(path, options, true)
+    clearSession()
+  } else if (res.status === 401 && token && !retried) {
+    clearSession()
+  }
 
   const text = await res.text()
   let data: unknown = null
@@ -75,10 +147,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 
   if (!res.ok) {
-    if (res.status === 401 && token) {
-      tokenStore.clear()
-      window.dispatchEvent(new Event('auth:expired'))
-    }
+    // A retry that still 401'd means the refresh token is dead too.
+    if (res.status === 401 && token && retried) clearSession()
     const detail =
       data && typeof data === 'object' && 'detail' in data
         ? String((data as { detail: unknown }).detail)
@@ -98,13 +168,18 @@ const put = <T,>(path: string, body: unknown) =>
 const postForm = <T,>(path: string, form: FormData) =>
   request<T>(path, { method: 'POST', body: form })
 
+/** Persist a login/refresh response: access + refresh tokens together. */
+export function persistSession(tokens: { access_token: string; refresh_token?: string }): void {
+  tokenStore.set(tokens.access_token)
+  if (tokens.refresh_token) refreshStore.set(tokens.refresh_token)
+}
+
 export const api = {
   auth: {
     login: (email: string, password: string) =>
       post<TokenResponse>('/auth/login', { email, password }),
     me: () => request<User>('/auth/me'),
-  },
-  projects: {
+  },  projects: {
     list: (params: { tag?: string; featured?: boolean } = {}) =>
       request<Project[]>(`/projects${qs(params)}`),
     get: (slug: string) => request<Project>(`/projects/${encodeURIComponent(slug)}`),

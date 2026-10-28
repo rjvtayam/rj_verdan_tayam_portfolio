@@ -48,6 +48,30 @@ def test_refresh_returns_working_access_token(client):
     assert me.json()["email"] == "admin@test.dev"
 
 
+def test_login_issues_working_refresh_token(client):
+    """Login must hand back a refresh token that mints a usable access token."""
+    token = _login(client)
+    assert token["refresh_token"]
+
+    res = client.post("/api/v1/auth/refresh", params={"credentials": token["refresh_token"]})
+    assert res.status_code == 200, res.text
+    body = res.json()
+    assert body["access_token"]
+    assert body["refresh_token"]
+
+    # the rotated refresh token works too (rotation, not a fixed token)
+    res2 = client.post("/api/v1/auth/refresh", params={"credentials": body["refresh_token"]})
+    assert res2.status_code == 200
+
+    # and the minted access token authenticates
+    me = client.get(
+        "/api/v1/auth/me",
+        headers={"Authorization": f"Bearer {body['access_token']}"},
+    )
+    assert me.status_code == 200
+    assert me.json()["email"] == "admin@test.dev"
+
+
 def test_refresh_rejects_wrong_token_type(client):
     token = _login(client)
     # an access token must not be accepted where a refresh token is required

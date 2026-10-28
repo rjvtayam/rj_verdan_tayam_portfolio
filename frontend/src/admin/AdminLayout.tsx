@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { LayoutDashboard, LogOut, Newspaper, FolderKanban, PenLine, Inbox } from 'lucide-react'
 import { NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom'
-import { api, tokenStore } from '../lib/api'
+import { api, clearTokens, tokenStore } from '../lib/api'
 import { useQuery } from '@tanstack/react-query'
 
 const TABS = [
@@ -43,7 +43,7 @@ export default function AdminLayout() {
   }
 
   const logout = () => {
-    tokenStore.clear()
+    clearTokens()
     navigate('/admin/login', { replace: true })
   }
 

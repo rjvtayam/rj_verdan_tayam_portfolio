@@ -8,7 +8,16 @@ from starlette.responses import Response
 
 from app.api.v1 import api_router
 from app.core.config import settings
+from app.core.observability import (
+    RequestContextMiddleware,
+    configure_logging,
+    register_exception_handlers,
+)
+from app.core.security_headers import SecurityHeadersMiddleware
 from app.core.uploads import UPLOAD_DIR, ensure_upload_dir
+
+# The request logger needs its own handler (uvicorn leaves root at WARNING).
+configure_logging()
 
 app = FastAPI(title=settings.APP_NAME, version="1.0.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
 
@@ -60,6 +69,11 @@ app.add_middleware(
 # Registered after CORS so compression wraps the API, not the CORS handshake.
 app.add_middleware(UploadSafeGZipMiddleware, minimum_size=1024)
 app.add_middleware(CacheControlMiddleware)
+app.add_middleware(SecurityHeadersMiddleware)
+# Outermost: assigns the request id and logs every response, including errors.
+app.add_middleware(RequestContextMiddleware)
+
+register_exception_handlers(app)
 
 ensure_upload_dir()
 app.mount("/api/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")

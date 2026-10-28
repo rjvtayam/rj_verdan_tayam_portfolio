@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     ADMIN_EMAIL: str = "admin@example.com"
     ADMIN_PASSWORD: str = "change-me"
     RATE_LIMIT_MESSAGES_PER_HOUR: int = 5
+    RATE_LIMIT_VOTES_PER_HOUR: int = 30
 
 
 settings = Settings()
