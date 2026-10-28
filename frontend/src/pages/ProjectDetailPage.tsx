@@ -9,21 +9,32 @@ import {
   Bug,
   Building2,
   CalendarDays,
+  CheckCircle2,
+  Code,
+  Container,
   Database,
   ExternalLink,
   FileText,
   Flag,
   FlaskConical,
   GitBranch,
+  Layers,
   LayoutGrid,
+  Package,
+  Palette,
   Percent,
   Play,
   Radio,
+  RefreshCw,
+  Route,
+  Shield,
+  Terminal,
   Trophy,
   Users,
   Workflow,
   type LucideIcon,
 } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { GithubIcon } from '../components/SocialIcons'
 import { Link, useParams } from 'react-router-dom'
 import Reveal from '../components/Reveal'
@@ -101,11 +112,23 @@ const RESULT_ICON: Array<[RegExp, LucideIcon]> = [
   [/report|card|pdf|sf\d/i, FileText],
   [/live|socket|dashboard/i, Radio],
   [/weight/i, Percent],
+  [/quarter|semester|period/i, CalendarDays],
   [/flow|schedul/i, Workflow],
   [/office|campus/i, Building2],
   [/status|prototype/i, Flag],
   [/\bai\b|helper/i, Bot],
-  [/role|user|student|faculty|access/i, Users],
+  [/security|csrf|auth|middleware/i, Shield],
+  [/theme|interface/i, Palette],
+  [/refresh|reload/i, RefreshCw],
+  [/analytic|metric|view/i, BarChart3],
+  [/validat/i, CheckCircle2],
+  [/service layer|feature/i, Layers],
+  [/order|state/i, Package],
+  [/route|module/i, Route],
+  [/deploy/i, Container],
+  [/type safety/i, Code],
+  [/language|backend/i, Terminal],
+  [/role|user|student|faculty|access|trust/i, Users],
 ]
 
 function resultIcon(label: string): LucideIcon {
@@ -331,38 +354,47 @@ export default function ProjectDetailPage() {
             </Block>
 
             {project.results.length > 0 && (
-              <Reveal className="border-t border-line pt-8">
-                <p className="label mb-4">/// RESULTS</p>
-                <div className="grid gap-4 sm:grid-cols-3">
+              <div className="border-t border-line pt-8">
+                <Reveal>
+                  <p className="label mb-4">/// RESULTS</p>
+                </Reveal>
+                {/* Two-up on mobile, three-up from sm — cards stagger in left to
+                    right, each icon springs a beat after its card lands. */}
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {project.results.map((r, i) => {
                     const color = NEON[i % NEON.length]
                     const Icon = resultIcon(r.label)
                     return (
-                      <div
-                        key={r.label}
-                        className="neon-card p-5"
-                        style={{ ['--card-neon' as string]: color }}
-                      >
-                        <span
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-line bg-bg"
-                          style={{ color }}
-                          aria-hidden="true"
+                      <Reveal key={r.label} delay={Math.min(i * 0.07, 0.5)} className="h-full">
+                        <div
+                          className="neon-card h-full p-4"
+                          style={{ ['--card-neon' as string]: color }}
                         >
-                          <Icon size={16} />
-                        </span>
-                        <p
-                          className="mt-4 font-mono text-3xl font-bold"
-                          style={{ color }}
-                          aria-label={r.value}
-                        >
-                          <CountUp value={r.value} />
-                        </p>
-                        <p className="label mt-2 leading-snug">{r.label}</p>
-                      </div>
+                          <motion.span
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true, margin: '-40px' }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 22, delay: 0.18 + i * 0.07 }}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-line bg-bg"
+                            style={{ color }}
+                            aria-hidden="true"
+                          >
+                            <Icon size={15} />
+                          </motion.span>
+                          <p
+                            className="mt-3 font-mono text-2xl leading-tight font-bold break-words"
+                            style={{ color }}
+                            aria-label={r.value}
+                          >
+                            <CountUp value={r.value} />
+                          </p>
+                          <p className="label mt-2 leading-snug">{r.label}</p>
+                        </div>
+                      </Reveal>
                     )
                   })}
                 </div>
-              </Reveal>
+              </div>
             )}
           </div>
 

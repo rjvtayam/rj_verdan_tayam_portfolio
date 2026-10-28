@@ -40,6 +40,9 @@ PROJECTS = [
             {"label": "Role types served", "value": "7"},
             {"label": "Grading components weighted", "value": "3"},
             {"label": "DepEd report cards", "value": "SF9 + SF10"},
+            {"label": "Component weight split", "value": "30/50/20"},
+            {"label": "Quarterly grading periods", "value": "4"},
+            {"label": "Monitoring analytics views", "value": "3"},
         ],
         "tech_stack": ["Python", "FastAPI", "PostgreSQL", "JavaScript", "HTML5"],
         "featured": True,
@@ -57,6 +60,9 @@ PROJECTS = [
             {"label": "Role panels", "value": "4"},
             {"label": "Live dashboards", "value": "Socket.IO"},
             {"label": "Reports", "value": "Auto PDF"},
+            {"label": "Security mechanisms", "value": "3"},
+            {"label": "UI themes", "value": "Dark + Light"},
+            {"label": "Manual page refreshes", "value": "0"},
         ],
         "tech_stack": ["Python", "Flask", "PostgreSQL", "JavaScript", "Socket.IO"],
         "featured": True,
@@ -74,6 +80,9 @@ PROJECTS = [
             {"label": "AI helper for Q&A", "value": "Built-in"},
             {"label": "Skill tracking", "value": "Per student"},
             {"label": "Status", "value": "Functional prototype"},
+            {"label": "Core features", "value": "3"},
+            {"label": "Database", "value": "PostgreSQL"},
+            {"label": "Validation", "value": "End to end"},
         ],
         "tech_stack": ["Python", "PostgreSQL", "HTML5", "AI Integration"],
         "featured": False,
@@ -91,6 +100,9 @@ PROJECTS = [
             {"label": "Award", "value": "Star Award"},
             {"label": "Awarded", "value": "2024"},
             {"label": "Role", "value": "Backend"},
+            {"label": "Backend language", "value": "Python"},
+            {"label": "Database", "value": "MySQL"},
+            {"label": "Award disciplines", "value": "Web + UX/UI"},
         ],
         "tech_stack": ["Python", "MySQL", "HTML5"],
         "featured": False,
@@ -108,6 +120,9 @@ PROJECTS = [
             {"label": "Backend tests passing", "value": "15/15"},
             {"label": "Lint + type errors", "value": "0"},
             {"label": "Admin surfaces", "value": "6"},
+            {"label": "Type safety", "value": "Strict"},
+            {"label": "Auth stack", "value": "JWT + argon2"},
+            {"label": "Deployment", "value": "Docker Compose"},
         ],
         "tech_stack": ["React", "TypeScript", "FastAPI", "PostgreSQL", "Tailwind CSS", "Docker"],
         "featured": True,
@@ -125,6 +140,9 @@ PROJECTS = [
             {"label": "Campus offices served", "value": "LSPU-BAO"},
             {"label": "Order flow", "value": "Browse → request → track"},
             {"label": "Access", "value": "Students & faculty"},
+            {"label": "Order states", "value": "4"},
+            {"label": "Trust levels", "value": "2"},
+            {"label": "Service layer", "value": "Python"},
         ],
         "tech_stack": ["Python", "MySQL", "JavaScript", "HTML5", "CSS3"],
         "featured": False,
@@ -142,6 +160,9 @@ PROJECTS = [
             {"label": "Branches isolated at DB level", "value": "2"},
             {"label": "Tables protected by RLS", "value": "20"},
             {"label": "Role-based surfaces", "value": "4"},
+            {"label": "PostgreSQL tables", "value": "28"},
+            {"label": "Security middleware", "value": "6"},
+            {"label": "Route modules", "value": "22"},
         ],
         "tech_stack": ["Python", "FastAPI", "PostgreSQL", "SQLAlchemy", "JavaScript", "Chart.js"],
         "featured": False,
@@ -1230,6 +1251,20 @@ async def seed(refresh: bool = False) -> None:
             inserted += 1
         if inserted:
             print(f"[seed] inserted {inserted} new projects ({len(seeded_slugs)} already present)")
+
+        # Backfill metric cards on projects already in the database, so stat
+        # lists added to PROJECTS later reach live rows (idempotent — writes
+        # only when the stored list differs).
+        results_by_slug = {_slugify(p["title"]): p["results"] for p in PROJECTS}
+        rows = (await db.execute(select(Project).where(Project.slug.in_(results_by_slug)))).scalars().all()
+        backfilled = 0
+        for project in rows:
+            want = results_by_slug[project.slug]
+            if project.results != want:
+                project.results = want
+                backfilled += 1
+        if backfilled:
+            print(f"[seed] backfilled results on {backfilled} projects")
 
         # Attach demo videos to their corresponding works (idempotent — runs every
         # seed so already-inserted projects receive their videos as well).
