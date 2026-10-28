@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Frontend — lint, typecheck, build, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (oxlint)
+        run: npm run lint
+
+      - name: Type-check + build
+        run: npm run build
+
+      - name: Unit tests (vitest)
+        run: npm test
+
+  backend:
+    name: Backend — ruff, pytest
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: portfolio
+          POSTGRES_PASSWORD: portfolio_dev
+          POSTGRES_DB: portfolio_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      # tests/conftest.py pins DATABASE_URL to the same
+      # portfolio/portfolio_dev@localhost:5432/portfolio_test DSN as the
+      # service above, so no extra env is needed here.
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Lint (ruff)
+        run: uv run ruff check .
+
+      - name: Tests (pytest)
+        run: uv run pytest -q

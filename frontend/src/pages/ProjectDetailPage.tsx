@@ -4,33 +4,11 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
-  BarChart3,
-  Bot,
-  Bug,
-  Building2,
   CalendarDays,
-  CheckCircle2,
-  Code,
-  Container,
-  Database,
   ExternalLink,
   FileText,
-  Flag,
-  FlaskConical,
-  GitBranch,
-  Layers,
-  LayoutGrid,
-  Package,
-  Palette,
-  Percent,
   Play,
-  Radio,
-  RefreshCw,
-  Route,
-  Shield,
-  Terminal,
   Trophy,
-  Users,
   Workflow,
   type LucideIcon,
 } from 'lucide-react'
@@ -43,33 +21,31 @@ import VoteWidget from '../components/VoteWidget'
 import { usePosts, useProject, useProjects } from '../lib/hooks'
 import { techColor } from '../lib/techColors'
 import { levelMeta, levelRank } from '../lib/postLevels'
+import { parseStat, resultIcon, statFrame } from '../lib/resultStats'
 
 const NEON = ['var(--neon-1)', 'var(--neon-2)', 'var(--neon-3)', 'var(--neon-4)', 'var(--neon-5)', 'var(--neon-6)']
 
-/** Plain integers and "15/15"-style pairs count up; anything else renders as-is. */
-const NUMERIC = /^(\d+)(?:\/(\d+))?$/
 const COUNT_MS = 900
 
 /**
  * Counts a numeric stat up when it scrolls into view (IntersectionObserver +
  * rAF, runs once). Non-numeric values — "SF9 + SF10", "Socket.IO" — and
- * prefers-reduced-motion render the final text immediately.
+ * prefers-reduced-motion render the final text immediately. Parsing and
+ * frame rendering live in lib/resultStats.ts.
  */
 function CountUp({ value }: { value: string }) {
   const ref = useRef<HTMLSpanElement>(null)
   const [text, setText] = useState(() => {
-    const m = NUMERIC.exec(value)
+    const stat = parseStat(value)
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    return m && !reduced ? (m[2] !== undefined ? `0/${m[2]}` : '0') : value
+    return stat.kind === 'count' && !reduced ? stat.startText : value
   })
 
   useEffect(() => {
     const el = ref.current
-    const m = NUMERIC.exec(value)
-    if (!el || !m || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const stat = parseStat(value)
+    if (!el || stat.kind !== 'count' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-    const end1 = Number(m[1])
-    const end2 = m[2] !== undefined ? Number(m[2]) : null
     let raf = 0
     const io = new IntersectionObserver(
       (entries) => {
@@ -78,9 +54,7 @@ function CountUp({ value }: { value: string }) {
         const started = performance.now()
         const tick = (now: number) => {
           const p = Math.min(1, (now - started) / COUNT_MS)
-          const eased = 1 - Math.pow(1 - p, 3) // ease-out cubic
-          const n1 = Math.round(end1 * eased)
-          setText(end2 !== null ? `${n1}/${Math.round(end2 * eased)}` : String(n1))
+          setText(statFrame(stat, p))
           if (p < 1) raf = requestAnimationFrame(tick)
         }
         raf = requestAnimationFrame(tick)
@@ -99,40 +73,6 @@ function CountUp({ value }: { value: string }) {
       {text}
     </span>
   )
-}
-
-/** Keyword → icon so every result stat reads at a glance. First match wins. */
-const RESULT_ICON: Array<[RegExp, LucideIcon]> = [
-  [/test|qa/i, FlaskConical],
-  [/error|lint/i, Bug],
-  [/surface|admin|panel/i, LayoutGrid],
-  [/branch/i, GitBranch],
-  [/table|schema|database/i, Database],
-  [/award|star/i, Trophy],
-  [/report|card|pdf|sf\d/i, FileText],
-  [/live|socket|dashboard/i, Radio],
-  [/weight/i, Percent],
-  [/quarter|semester|period/i, CalendarDays],
-  [/flow|schedul/i, Workflow],
-  [/office|campus/i, Building2],
-  [/status|prototype/i, Flag],
-  [/\bai\b|helper/i, Bot],
-  [/security|csrf|auth|middleware/i, Shield],
-  [/theme|interface/i, Palette],
-  [/refresh|reload/i, RefreshCw],
-  [/analytic|metric|view/i, BarChart3],
-  [/validat/i, CheckCircle2],
-  [/service layer|feature/i, Layers],
-  [/order|state/i, Package],
-  [/route|module/i, Route],
-  [/deploy/i, Container],
-  [/type safety/i, Code],
-  [/language|backend/i, Terminal],
-  [/role|user|student|faculty|access|trust/i, Users],
-]
-
-function resultIcon(label: string): LucideIcon {
-  return RESULT_ICON.find(([re]) => re.test(label))?.[1] ?? BarChart3
 }
 
 /** Icon-headed narrative section: label row + accent-edged body panel. */

@@ -1,5 +1,7 @@
 # R.J. Verdan Tayam — Professional Portfolio
 
+[![CI](https://github.com/rjvtayam/rj_verdan_tayam_portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/rjvtayam/rj_verdan_tayam_portfolio/actions/workflows/ci.yml)
+
 Full-stack portfolio: **React 19 + Vite + Tailwind CSS v4** frontend, **FastAPI + SQLAlchemy (async) + Alembic** backend, **PostgreSQL 17** database.
 
 ## Project layout
@@ -45,12 +47,13 @@ npm run dev                # http://localhost:5173 (proxies /api to :8000)
 ```
 
 - `npm run lint` — oxlint
+- `npm run test` — vitest unit tests (lib logic: stat parsing, categories, formats)
 - `npm run build` — type-check + production build
 
 ### 4. Admin console
 
 - URL: http://localhost:5173/admin/login
-- Default credentials (change in `backend/.env`): `rickyjhon.tayam@gmail.com` / `ChangeMe123!`
+- Credentials are seeded from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `backend/.env` (see `backend/.env.example`) — never committed.
 - Manage projects (incl. 1–5★ author rating), posts, skills, experience timeline, the contact inbox and testimonial moderation (publish / hide / delete).
 
 ### Content

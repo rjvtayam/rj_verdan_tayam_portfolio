@@ -21,6 +21,7 @@ dev = [
     "pytest>=8.3",
     "pytest-asyncio>=0.25",
     "httpx>=0.28",
+    "ruff>=0.9",
 ]
 
 [tool.pytest.ini_options]
@@ -29,6 +30,36 @@ testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 100
+target-version = "py312"
+# Alembic revision files are generated stamps — lint the app, not history.
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+# Pinned explicitly so CI behavior never drifts with ruff's evolving defaults:
+# pycodestyle core (E4/E7/E9), pyflakes (F), import sorting (I),
+# pyupgrade (UP), bugbear (B), ruff-specific (RUF).
+select = ["E4", "E7", "E9", "F", "I", "UP", "B", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+# Seed data is user-facing prose: intentional typography (en dashes in
+# published copy) is content, not ambiguous input.
+"app/seed.py" = ["RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency injection puts Depends()/Form()/File()/Query() in
+# parameter defaults by design — allow the framework idiom, keep B008 for
+# everything else (e.g. datetime.now() in defaults).
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.File",
+    "fastapi.Form",
+    "fastapi.Query",
+    "fastapi.Path",
+    "fastapi.Header",
+    "fastapi.Body",
+    "fastapi.Cookie",
+    "fastapi.Security",
+]
 
 [build-system]
 requires = ["hatchling"]

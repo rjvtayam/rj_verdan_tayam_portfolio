@@ -4,8 +4,8 @@ import os
 os.environ["DATABASE_URL"] = "postgresql+asyncpg://portfolio:portfolio_dev@localhost:5432/portfolio_test"
 os.environ.setdefault("SECRET_KEY", "test-secret-key")
 
-import pytest  # noqa: E402
-from fastapi.testclient import TestClient  # noqa: E402
+import pytest
+from fastapi.testclient import TestClient
 
 
 @pytest.fixture(scope="session", autouse=True)

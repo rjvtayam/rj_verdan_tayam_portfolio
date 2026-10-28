@@ -11,6 +11,11 @@ export default class ErrorBoundary extends Component<Props, State> {
     return { error }
   }
 
+  componentDidCatch(error: Error, info: { componentStack?: string | null }) {
+    // surface render crashes in devtools/analytics instead of failing silently
+    console.error('Render crash caught by ErrorBoundary:', error, info.componentStack)
+  }
+
   render() {
     if (this.state.error) {
       return (

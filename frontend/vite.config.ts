@@ -1,6 +1,6 @@
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -13,5 +13,11 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+  },
+  test: {
+    environment: 'node',
+    include: ['src/**/*.test.ts'],
+    // pin the zone so date-formatting assertions are deterministic anywhere
+    env: { TZ: 'UTC' },
   },
 })

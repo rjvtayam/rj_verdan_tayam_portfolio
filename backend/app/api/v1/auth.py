@@ -3,7 +3,11 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_current_user, require_admin
-from app.core.security import create_access_token, create_refresh_token, decode_token, verify_password
+from app.core.security import (
+    create_access_token,
+    decode_token,
+    verify_password,
+)
 from app.db import get_db
 from app.models import User
 from app.schemas import LoginRequest, TokenResponse, UserOut
@@ -25,9 +29,7 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)) -> Token
 
 
 @router.post("/refresh", response_model=TokenResponse)
-async def refresh(
-    credentials: str, db: AsyncSession = Depends(get_db)
-) -> TokenResponse:  # pragma: no cover - convenience endpoint
+async def refresh(credentials: str, db: AsyncSession = Depends(get_db)) -> TokenResponse:
     payload = decode_token(credentials)
     if payload is None or payload.get("type") != "refresh":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")

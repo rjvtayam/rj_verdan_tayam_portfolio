@@ -159,3 +159,22 @@ def test_testimonial_validation(client):
         files={"avatar": ("evil.exe", io.BytesIO(b"MZ"), "application/octet-stream")},
     )
     assert bad_avatar.status_code == 415
+
+
+def test_avatar_rejects_oversized_file(client):
+    oversized = b"a" * (2 * 1024 * 1024 + 1)
+    res = client.post(
+        "/api/v1/testimonials",
+        data={"name": "Big Avatar", "quote": "This quote is long enough.", "rating": "5"},
+        files={"avatar": ("huge.png", io.BytesIO(oversized), "image/png")},
+    )
+    assert res.status_code == 413
+
+
+def test_avatar_rejects_empty_file(client):
+    res = client.post(
+        "/api/v1/testimonials",
+        data={"name": "Empty Avatar", "quote": "This quote is long enough.", "rating": "5"},
+        files={"avatar": ("blank.png", io.BytesIO(b""), "image/png")},
+    )
+    assert res.status_code == 422

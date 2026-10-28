@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import jwt
 from argon2 import PasswordHasher
@@ -22,7 +22,7 @@ def verify_password(password_hash: str, password: str) -> bool:
 
 
 def _create_token(subject: str, role: str, expires_delta: timedelta, token_type: str) -> str:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     payload = {
         "sub": subject,
         "role": role,

@@ -123,7 +123,7 @@ async def admin_create_project(body: ProjectCreate, db: AsyncSession = Depends(g
         await db.commit()
     except IntegrityError:
         await db.rollback()
-        raise HTTPException(status_code=409, detail="Slug already exists")
+        raise HTTPException(status_code=409, detail="Slug already exists") from None
     return await _reload_project(db, project.id)
 
 
@@ -170,7 +170,7 @@ async def admin_create_post(body: PostCreate, db: AsyncSession = Depends(get_db)
         await db.commit()
     except IntegrityError:
         await db.rollback()
-        raise HTTPException(status_code=409, detail="Slug already exists")
+        raise HTTPException(status_code=409, detail="Slug already exists") from None
     return await _reload_post(db, post.id)
 
 

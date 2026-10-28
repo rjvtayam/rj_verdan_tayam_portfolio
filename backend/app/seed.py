@@ -6,7 +6,7 @@ Run with: uv run python -m app.seed [--refresh]
 
 import asyncio
 import sys
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
 from sqlalchemy import delete, select
 
@@ -1306,7 +1306,7 @@ async def seed(refresh: bool = False) -> None:
                         project_slug=raw.get("project_slug"),
                         level=raw.get("level"),
                         status="published",
-                        published_at=datetime.now(timezone.utc),
+                        published_at=datetime.now(UTC),
                     )
                 )
                 inserted_p += 1
