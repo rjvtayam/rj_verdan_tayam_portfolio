@@ -1,3 +1,5 @@
+import math
+import re
 from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
@@ -142,6 +144,48 @@ class PostOut(BaseModel):
     level: str | None = None
     status: str
     published_at: datetime | None
+    created_at: datetime
+
+
+_CODE_FENCE = re.compile(r"```[\s\S]*?```")
+
+
+def reading_minutes(content_md: str) -> int:
+    """Reading time for a markdown body — must match frontend lib/format.ts.
+
+    Prose reads at ~200 wpm; fenced code is counted per line (50 lines ≈
+    1 min) so technical posts don't collapse to a single minute. Rounding is
+    half-up to mirror JavaScript's Math.round (Python's round() is banker's).
+    """
+    if not content_md:
+        return 1
+    code_lines = [
+        line
+        for line in "\n".join(_CODE_FENCE.findall(content_md)).split("\n")
+        if line.strip() and not line.strip().startswith("```")
+    ]
+    prose_words = len(_CODE_FENCE.sub(" ", content_md).split())
+    minutes = prose_words / 200 + len(code_lines) / 50
+    return max(1, math.floor(minutes + 0.5))
+
+
+class PostListOut(BaseModel):
+    """List-view post: everything except the (heavy) body, plus the reading
+    time precomputed server-side so cards never need content_md."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    slug: str
+    title: str
+    excerpt: str
+    tags: list[str]
+    project_slug: str | None = None
+    level: str | None = None
+    status: str
+    published_at: datetime | None
+    created_at: datetime
+    reading_minutes: int
     created_at: datetime
 
 

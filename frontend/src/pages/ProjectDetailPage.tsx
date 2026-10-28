@@ -272,7 +272,7 @@ export default function ProjectDetailPage() {
                 <div className="brutal bg-surface p-2">
                   <video
                     src={project.demo_video}
-                    poster={project.demo_video.endsWith('.mp4') ? project.demo_video.replace(/\.mp4$/, '.jpg') : undefined}
+                    poster={project.demo_video.endsWith('.mp4') ? project.demo_video.replace(/\.mp4$/, '.webp') : undefined}
                     controls
                     preload="metadata"
                     playsInline

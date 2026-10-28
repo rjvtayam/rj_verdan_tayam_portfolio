@@ -117,7 +117,7 @@ export default function PostPage() {
               <span>/// {formatDate(post.published_at ?? post.created_at)}</span>
               <span className="inline-flex items-center gap-1.5 text-mute">
                 <Clock size={12} aria-hidden="true" />
-                {readingTime(post.content_md)} MIN READ
+                {readingTime(post.content_md ?? '')} MIN READ
               </span>
             </p>
             <h1 className="section-title text-[clamp(1.9rem,1.2rem+3vw,3.2rem)]">{post.title}</h1>
@@ -138,7 +138,7 @@ export default function PostPage() {
 
       <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 md:py-16">
         <div className="prose-tech">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content_md}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content_md ?? ''}</ReactMarkdown>
         </div>
 
         {next && next.slug !== post.slug && (

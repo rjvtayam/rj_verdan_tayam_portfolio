@@ -16,12 +16,12 @@
       content="Full-stack web developer. React, FastAPI, PostgreSQL. Selected work, writing and contact."
     />
     <meta property="og:type" content="website" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Self-hosted fonts (see src/index.css @font-face): preload the latin
+         faces that paint above the fold; latin-ext loads lazily via
+         unicode-range. No third-party font requests at runtime. -->
+    <link rel="preload" href="/fonts/orbitron-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
     <script>
       ;(function () {
         document.documentElement.dataset.theme = 'dark'

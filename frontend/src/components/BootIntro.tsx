@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 const LINES = [
   { cmd: 'boot portfolio.sys', out: 'modules: projects · writing · stack' },
@@ -6,11 +6,22 @@ const LINES = [
 ]
 
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+/** Fade-out duration when the intro is skipped mid-animation. */
+const EXIT_MS = 250
 
 export default function BootIntro() {
   const [visible, setVisible] = useState(() => !sessionStorage.getItem('booted'))
   const [step, setStep] = useState(0)
   const [leaving, setLeaving] = useState(() => REDUCED && !sessionStorage.getItem('booted'))
+  const timers = useRef<number[]>([])
+
+  /** Clear the sequence and play the (short) exit fade. */
+  const skip = useCallback(() => {
+    timers.current.forEach(clearTimeout)
+    timers.current = []
+    setLeaving(true)
+    timers.current.push(window.setTimeout(() => setVisible(false), EXIT_MS))
+  }, [])
 
   useEffect(() => {
     if (!visible) return
@@ -23,8 +34,17 @@ export default function BootIntro() {
     const t2 = window.setTimeout(() => setStep(2), 1250)
     const t3 = window.setTimeout(() => setLeaving(true), 1750)
     const t4 = window.setTimeout(() => setVisible(false), 2250)
-    return () => [t1, t2, t3, t4].forEach(clearTimeout)
-  }, [visible])
+    timers.current = [t1, t2, t3, t4]
+
+    // Any click or keypress jumps straight to the site.
+    window.addEventListener('pointerdown', skip, { once: true })
+    window.addEventListener('keydown', skip, { once: true })
+    return () => {
+      timers.current.forEach(clearTimeout)
+      window.removeEventListener('pointerdown', skip)
+      window.removeEventListener('keydown', skip)
+    }
+  }, [visible, skip])
 
   if (!visible) return null
 
@@ -44,6 +64,7 @@ export default function BootIntro() {
         <div className="boot-bar mt-8">
           <span />
         </div>
+        <p className="label mt-4 opacity-50">press any key to skip</p>
       </div>
     </div>
   )

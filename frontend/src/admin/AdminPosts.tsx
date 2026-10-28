@@ -52,7 +52,7 @@ export default function AdminPosts() {
       slug: p.slug,
       title: p.title,
       excerpt: p.excerpt,
-      content_md: p.content_md,
+      content_md: p.content_md ?? '',
       tags: p.tags.join(', '),
       status: p.status,
     })

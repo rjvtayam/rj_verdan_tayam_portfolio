@@ -30,7 +30,10 @@ export interface Post {
   slug: string
   title: string
   excerpt: string
-  content_md: string
+  /** Detail responses only — list endpoints return a slim payload. */
+  content_md?: string
+  /** List responses only — precomputed from content_md server-side. */
+  reading_minutes?: number
   tags: string[]
   project_slug: string | null
   level: string | null

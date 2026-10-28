@@ -1,3 +1,6 @@
+from app.schemas import reading_minutes
+
+
 def _auth(client) -> dict:
     res = client.post(
         "/api/v1/auth/login",
@@ -32,6 +35,25 @@ def test_posts_list_includes_only_published(client):
 
     _delete_post(client, headers, published["id"])
     _delete_post(client, headers, draft["id"])
+
+
+def test_posts_list_is_slim_with_precomputed_reading_time(client):
+    """List payloads must not carry content_md; reading_minutes stands in."""
+    headers = _auth(client)
+    # 400 prose words → 2 minutes at 200 wpm (matches frontend lib/format.ts)
+    body = "# note\n\n" + " ".join(f"word{i}" for i in range(400))
+    post = _create_post(client, headers, "slim-payload", content_md=body)
+
+    res = client.get("/api/v1/posts")
+    entry = next(p for p in res.json() if p["slug"] == "slim-payload")
+    assert "content_md" not in entry
+    assert entry["reading_minutes"] == 2
+
+    # detail keeps the full body
+    detail = client.get("/api/v1/posts/slim-payload").json()
+    assert detail["content_md"] == body
+
+    _delete_post(client, headers, post["id"])
 
 
 def test_posts_filters_by_project_and_level(client):
@@ -120,3 +142,17 @@ def test_experiences_catalog_endpoint(client):
 
     exp_id = created.json()["id"]
     assert client.delete(f"/api/v1/admin/experiences/{exp_id}", headers=headers).status_code == 204
+
+
+def test_reading_minutes_matches_frontend_algorithm():
+    """Parity with frontend lib/format.ts readingTime(): 200 wpm prose,
+    fenced code at 50 lines/min, floored at 1 minute."""
+    assert reading_minutes("") == 1
+    assert reading_minutes("short note") == 1
+    assert reading_minutes(" ".join(f"w{i}" for i in range(200))) == 1
+    assert reading_minutes(" ".join(f"w{i}" for i in range(400))) == 2
+
+    code = "```python\n" + "\n".join(f"print({i})" for i in range(50)) + "\n```"
+    assert reading_minutes(code) == 1
+    long_code = "```python\n" + "\n".join(f"print({i})" for i in range(150)) + "\n```"
+    assert reading_minutes(long_code) == 3

@@ -283,7 +283,7 @@ function PostRow({ post, index }: { post: Post; index: number }) {
                   </span>
                 )}
                 <span aria-hidden="true">·</span>
-                <span>{readingTime(post.content_md)} min read</span>
+                <span>{post.reading_minutes ?? readingTime(post.content_md ?? '')} min read</span>
               </p>
             </div>
           </div>
