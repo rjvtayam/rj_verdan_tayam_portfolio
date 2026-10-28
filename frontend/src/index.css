@@ -1387,3 +1387,19 @@ html.cursor-fx select {
     display: none !important;
   }
 }
+
+/* ---------- case study: stack spectrum expand ----------
+   Segments wipe in left-to-right with a per-tech stagger set via inline
+   animation-delay. Transform-only, and the global reduced-motion guard
+   above completes it instantly. */
+.spectrum-seg {
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: spectrum-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes spectrum-in {
+  to {
+    transform: scaleX(1);
+  }
+}
